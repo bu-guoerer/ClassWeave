@@ -5,17 +5,10 @@
     <title>插入H5网页</title>
     <style>
         /* 基础重置 */
-        html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: "PingFang SC", "Microsoft YaHei", sans-serif; background: #000; }
+        html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: "PingFang SC", "Microsoft YaHei", sans-serif; }
         
-        /* 播放模式下的 iframe 样式，确保绝对占满全屏 */
-        iframe { 
-            position: absolute;
-            top: 0; left: 0;
-            width: 100vw; 
-            height: 100vh; 
-            border: none; 
-            display: block; 
-        }
+        /* 播放模式下的 iframe 样式 */
+        iframe { width: 100%; height: 100%; border: none; display: block; }
         
         /* 插入模式下的 UI 界面样式 */
         .insert-container {
@@ -23,7 +16,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            height: 100%;
             background-color: #f5f7fa;
             padding: 20px;
             box-sizing: border-box;
@@ -34,51 +27,28 @@
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             text-align: center;
-            width: 90%;
-            max-width: 450px;
+            width: 80%;
+            max-width: 400px;
         }
         h3 { margin-top: 0; color: #333; }
         select, input {
             width: 100%;
             padding: 10px;
-            margin: 10px 0;
+            margin: 15px 0;
             border: 1px solid #dcdfe6;
             border-radius: 4px;
             font-size: 14px;
-            box-sizing: border-box;
         }
-        
-        /* 新增：图片预览区域的样式 */
-        .preview-box {
-            width: 100%;
-            height: 180px;
-            margin: 10px 0 20px 0;
-            border: 1px dashed #c0c4cc;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            background-color: #fafafa;
-        }
-        .preview-box img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            transition: opacity 0.3s;
-        }
-
         button {
             background-color: #1677ff;
             color: #fff;
             border: none;
-            padding: 12px 20px;
+            padding: 10px 20px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
             width: 100%;
             transition: background 0.3s;
-            margin-top: 10px;
         }
         button:hover { background-color: #4096ff; }
     </style>
@@ -92,45 +62,29 @@
         window.Asc.plugin.init = function() {
             var appDiv = document.getElementById("app");
 
+            // 判断是否存在 objectId，存在则说明是“点击画布占位图”触发的播放模式
             if (window.Asc.plugin.info.objectId) {
+                
                 // ==========================================
                 // 模式 A：播放模式
                 // ==========================================
                 var oleData = window.Asc.plugin.info.data;
                 if (oleData) {
-                    var parsedData;
-                    
-                    // 【非常重要】：防报错机制（处理 JSON 解析异常）
-                    if (typeof oleData === "string") {
-                        try {
-                            if (oleData === "[object Object]") {
-                                parsedData = { url: "http://localhost:5173/h5/ai-generated.html" };
-                            } else {
-                                parsedData = JSON.parse(oleData);
-                            }
-                        } catch (e) {
-                            parsedData = { url: "" };
-                        }
-                    } else {
-                        parsedData = oleData;
-                    }
-
-                    // 动态创建 iframe 播放网页，加入 allowfullscreen 允许内部 H5 网页全屏
-                    if (parsedData && parsedData.url) {
-                        appDiv.innerHTML = '<iframe src="' + parsedData.url + '" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"></iframe>';
-                    } else {
-                        appDiv.innerHTML = '<h3 style="text-align:center; padding-top:20px; color:#fff;">未能读取到有效的网页地址</h3>';
-                    }
-                    
+                    var parsedData = JSON.parse(oleData);
+                    // 动态创建 iframe 播放网页
+                    appDiv.innerHTML = '<iframe src="' + parsedData.url + '"></iframe>';
                 } else {
-                    appDiv.innerHTML = '<h3 style="text-align:center; padding-top:20px; color:#fff;">未发现关联数据</h3>';
+                    appDiv.innerHTML = '<h3 style="text-align:center; padding-top:20px;">未能读取到网页地址</h3>';
                 }
 
             } else {
+                
                 // ==========================================
-                // 模式 B：插入模式（显示选择界面和预览图）
+                // 模式 B：插入模式（显示选择界面）
                 // ==========================================
                 
+                // 1. 渲染一个带有下拉框和确认按钮的界面
+                // 【核心修改点1】：给每个 option 加上 data-img 属性，配置它们各自对应的封面图
                 appDiv.innerHTML = `
                     <div class="insert-container">
                         <div class="insert-card">
@@ -149,44 +103,25 @@
                                 </option>
                             </select>
                             
-                            <div class="preview-box">
-                                <img id="img-preview" src="https://picui.ogmua.cn/s1/2026/03/26/69c4c689abf26.webp" alt="占位图预览" />
-                            </div>
-
-                            <input type="text" id="custom-url" placeholder="或在此手动输入外部完整链接" />
+                            <input type="text" id="custom-url" placeholder="或在此手动输入完整的网页地址" />
 
                             <button id="insert-btn">确认插入到幻灯片</button>
                         </div>
                     </div>
                 `;
 
-                // 【新增逻辑】：监听下拉框的选择变化，实时切换预览图片
-                document.getElementById("html-selector").addEventListener("change", function() {
-                    var selectedOption = this.options[this.selectedIndex];
-                    var imgSrc = selectedOption.getAttribute("data-img");
-                    document.getElementById("img-preview").src = imgSrc;
-                });
-
-                // 【新增逻辑】：监听输入框，如果用户自己输入了链接，给出提示或切换默认图
-                document.getElementById("custom-url").addEventListener("input", function() {
-                    var defaultImg = "https://picui.ogmua.cn/s1/2026/03/26/69c4c689abf26.webp";
-                    if (this.value.trim() !== "") {
-                        document.getElementById("img-preview").src = defaultImg; // 手动输入时展示默认图
-                    } else {
-                        // 清空输入框时，恢复回下拉框当前选中的图片
-                        var selector = document.getElementById("html-selector");
-                        document.getElementById("img-preview").src = selector.options[selector.selectedIndex].getAttribute("data-img");
-                    }
-                });
-
-                // 确认按钮点击事件
+                // 2. 为确认按钮绑定点击事件
                 document.getElementById("insert-btn").onclick = function() {
+                    // 获取下拉列表元素
                     var selector = document.getElementById("html-selector");
+                    // 获取当前被选中的 option 标签
                     var selectedOption = selector.options[selector.selectedIndex];
                     
+                    // 分别拿到绑定的网页URL和图片URL
                     var selectedUrl = selectedOption.value;
                     var selectedImg = selectedOption.getAttribute("data-img");
 
+                    // 检查是否手动输入了自定义地址
                     var customUrl = document.getElementById("custom-url").value.trim();
                     var finalUrl = customUrl ? customUrl : selectedUrl;
 
@@ -195,14 +130,17 @@
                         return;
                     }
 
+                    // 【核心修改点2】：动态决定使用哪张图片
+                    // 如果用户自己输入了外部链接，就用一张默认通用的封面图；如果是选择的列表项，就用绑定的图片
                     var defaultImg = "https://picui.ogmua.cn/s1/2026/03/26/69c4c689abf26.webp";
                     var finalImgUrl = customUrl ? defaultImg : selectedImg;
 
+                    // 准备数据
                     var oleData = JSON.stringify({ url: finalUrl });
 
                     var _param = {
                         "data": oleData,
-                        "imgSrc": finalImgUrl,
+                        "imgSrc": finalImgUrl, // 这里传入我们动态获取到的对应图片
                         "guid": "asc.{FFE1F462-1E74-4D2C-8C1F-0A0A0A0A0A01}", // 必须和 config.json 一致
                         "width": 150,
                         "height": 100,
@@ -210,7 +148,9 @@
                         "heightPix": 100 * 36000
                     };
 
+                    // 执行插入指令
                     window.Asc.plugin.executeMethod("AddOleObject", [_param], function() {
+                        // 插入成功后关闭弹窗
                         window.Asc.plugin.executeCommand("close", ""); 
                     });
                 };

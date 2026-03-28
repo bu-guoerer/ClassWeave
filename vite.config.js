@@ -10,10 +10,10 @@ export default defineConfig({
     vue(),
     vueDevTools(),
   ],
-  server: {
-    port: 5173,
-    cors: true, // 开启跨域允许，这步很重要！
-  },
+  // server: {
+  //   port: 5173,
+  //   cors: true, // 开启跨域允许，这步很重要！
+  // },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
