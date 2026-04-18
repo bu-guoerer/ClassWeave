@@ -1,22 +1,29 @@
 import { fileURLToPath, URL } from 'node:url'
 
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
-export default defineConfig({
-  plugins: [
-    vue(),
-    vueDevTools(),
-  ],
-  // server: {
-  //   port: 5173,
-  //   cors: true, // 开启跨域允许，这步很重要！
-  // },
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+  const fallbackApiBaseUrl = env.VITE_API_BASE_URL || 'http://47.109.139.75:8080'
+  const apiProxyTarget = env.VITE_API_PROXY_TARGET || fallbackApiBaseUrl
+
+  return {
+    plugins: [vue(), vueDevTools()],
+    server: {
+      proxy: {
+        '/api': {
+          target: apiProxyTarget,
+          changeOrigin: true,
+        },
+      },
     },
-  },
+    resolve: {
+      alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
+      },
+    },
+  }
 })

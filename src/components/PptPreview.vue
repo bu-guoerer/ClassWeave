@@ -19,9 +19,37 @@
     <div v-if="isLoading" class="loading-state">{{ loadingText }}</div>
     <div :id="editorElementId" ref="editorEl" class="onlyoffice__wrapper"></div>
 
+    <div v-if="!isLoading && !errorMessage && !resolvedEditorData" class="empty-state">
+      正在准备预览容器...
+    </div>
+
     <div v-if="errorMessage" class="error-banner">
       {{ errorMessage }}
     </div>
+
+    <div v-if="errorMessage" class="error-panel">
+      <div class="error-panel__title">预览暂时不可用</div>
+      <div class="error-panel__text">{{ errorMessage }}</div>
+      <a
+        v-if="fallbackDownloadUrl"
+        :href="fallbackDownloadUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="error-panel__link"
+      >
+        下载原文件
+      </a>
+    </div>
+
+    <details class="debug-panel" :open="Boolean(errorMessage)">
+      <summary class="debug-panel__summary">ONLYOFFICE 调试信息</summary>
+      <div class="debug-panel__grid">
+        <div v-for="item in debugEntries" :key="item.label" class="debug-panel__item">
+          <div class="debug-panel__label">{{ item.label }}</div>
+          <div class="debug-panel__value">{{ item.value || '-' }}</div>
+        </div>
+      </div>
+    </details>
 
     <div
       class="digital-human-layer"
@@ -90,6 +118,7 @@ const {
   loadingText,
   errorMessage,
   resolvedEditorData,
+  debugInfo,
   initPreview,
   destroyEditor,
   getEditor,
@@ -125,10 +154,40 @@ const fallbackDownloadUrl = computed(
 
 // ==================== 核心：监听数据变化自动加载 ====================
 // 替代原先的 onMounted，这样无论父组件异步还是同步传值，都能成功加载！
+const debugEntries = computed(() => {
+  const info = debugInfo.value || {}
+  return [
+    { label: 'phase', value: info.phase },
+    { label: 'requestSource', value: info.requestSource },
+    { label: 'previewSource', value: info.previewSource },
+    { label: 'sessionId', value: info.sessionId },
+    { label: 'taskId', value: info.taskId },
+    { label: 'apiJsUrl', value: info.apiJsUrl },
+    { label: 'documentServerUrl', value: info.documentServerUrl },
+    { label: 'documentUrl', value: info.documentUrl },
+    { label: 'directDownloadUrl', value: info.directDownloadUrl || fallbackDownloadUrl.value },
+    { label: 'fileName', value: info.fileName || previewTitle.value },
+    { label: 'sourceType', value: info.sourceType },
+    { label: 'error', value: info.lastError || errorMessage.value },
+  ]
+})
+
 onMounted(() => {
   // 必须等 DOM 渲染完，才能交给 ONLYOFFICE 去挂载
   initPreview(normalizedConfig.value, editorEl.value)
 })
+watch(
+  normalizedConfig,
+  (config, previousConfig) => {
+    if (!editorEl.value || !config || config === previousConfig) {
+      return
+    }
+
+    initPreview(config, editorEl.value)
+  },
+  { deep: true },
+)
+
 onBeforeUnmount(() => {
   destroyEditor(editorEl.value)
 })
@@ -329,6 +388,107 @@ watch(isSpeaking, (newVal) => {
   background: rgba(255, 77, 79, 0.92);
   color: #fff;
   font-size: 14px;
+}
+
+.empty-state,
+.error-panel {
+  position: absolute;
+  inset: 72px 24px 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  border: 1px dashed #c9d7ee;
+  background: linear-gradient(180deg, #f7faff, #eef4ff);
+  color: #52627b;
+  text-align: center;
+  padding: 24px;
+}
+
+.error-panel {
+  border-style: solid;
+  border-color: #ffd0d0;
+  background: linear-gradient(180deg, #fff8f8, #fff2f2);
+  color: #8f3535;
+}
+
+.error-panel__title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.error-panel__text {
+  max-width: 440px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.error-panel__link {
+  margin-top: 16px;
+  color: #1677ff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.debug-panel {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 84px;
+  z-index: 85;
+  border: 1px solid rgba(24, 39, 75, 0.12);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 28px rgba(14, 26, 45, 0.08);
+  overflow: hidden;
+}
+
+.debug-panel__summary {
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  color: #24344d;
+  list-style: none;
+}
+
+.debug-panel__summary::-webkit-details-marker {
+  display: none;
+}
+
+.debug-panel__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 0 14px 14px;
+}
+
+.debug-panel__item {
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f7f9fc;
+  border: 1px solid #e6ecf5;
+}
+
+.debug-panel__label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6c7a90;
+}
+
+.debug-panel__value {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: #233248;
+  word-break: break-all;
+  white-space: pre-wrap;
 }
 
 .menu {

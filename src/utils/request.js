@@ -5,8 +5,26 @@ import { ElMessage } from 'element-plus'
 const baseURL = '/api'
 const instance = axios.create({
   baseURL,
-  timeout: 10000,
+  timeout: 6 * 60 * 1000,
 })
+
+const isSuccessCode = (code) => [0, 1, 200, '0', '1', '200'].includes(code)
+const getErrorMessage = (error) => {
+  const backendMessage = error.response?.data?.message
+  if (backendMessage) {
+    return backendMessage
+  }
+
+  if (!error.response) {
+    return 'API server is unreachable. Check whether the backend is running, or verify VITE_API_PROXY_TARGET / VITE_API_BASE_URL.'
+  }
+
+  if (error.response.status >= 500) {
+    return `API server error (${error.response.status}). Check backend logs or the proxy target.`
+  }
+
+  return error.message || 'Service error'
+}
 
 // 请求拦截器
 instance.interceptors.request.use(
@@ -21,10 +39,11 @@ instance.interceptors.request.use(
 // 响应拦截器
 instance.interceptors.response.use(
   function (response) {
-    // 注意：你原来的组件中成功状态是 code === 0，你的 request 中是 code == 1
-    // 这里兼容一下 0 和 1 的情况，你需要根据实际后端接口做调整
-    if (response.data.code == 1 || response.data.code == 0) {
-      // 推荐直接返回 data，这样组件里不需要再解构一层 response.data
+    if (response?.data == null) {
+      return response
+    }
+
+    if (response.data.code === undefined || isSuccessCode(response.data.code)) {
       return response.data
     }
 
@@ -32,7 +51,7 @@ instance.interceptors.response.use(
     return Promise.reject(new Error(response.data.message || '服务异常'))
   },
   function (error) {
-    ElMessage.error(error.response?.data?.message || '服务异常')
+    ElMessage.error(getErrorMessage(error))
     return Promise.reject(error)
   },
 )

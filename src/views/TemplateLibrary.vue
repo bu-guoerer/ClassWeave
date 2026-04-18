@@ -129,7 +129,7 @@ const filteredTemplates = computed(() => {
 const useTemplate = (tpl) => {
   // 实际业务逻辑：携带模板 ID 或文件 URL 跳转回聊天页面，并通知 AI 使用此模板
   alert(`你选择了模板：${tpl.title}\n即将返回对话界面并应用该模板主题。`)
-  router.push({ path: '/', query: { templateId: tpl.id } })
+  router.push({ path: '/chat', query: { templateId: tpl.id } })
 }
 
 // 点击预览模板
