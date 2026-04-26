@@ -17,7 +17,7 @@ export default {
         <li>
           <div class="career">品牌经理</div>
           <div class="comment">
-            "We have strict VI guidelines. AnyGen is the first AI that perfectly followed our
+            "We have strict VI guidelines. ClassWeave is the first AI that perfectly followed our
             uploaded corporate templates—fonts, colors, complex layouts. It automated brand
             compliance and saved us hours."
           </div>
@@ -27,7 +27,7 @@ export default {
         <li>
           <div class="career">品牌经理</div>
           <div class="comment">
-            "We have strict VI guidelines. AnyGen is the first AI that perfectly followed our
+            "We have strict VI guidelines. ClassWeave is the first AI that perfectly followed our
             uploaded corporate templates—fonts, colors, complex layouts. It automated brand
             compliance and saved us hours."
           </div>
@@ -37,7 +37,7 @@ export default {
         <li>
           <div class="career">品牌经理</div>
           <div class="comment">
-            "We have strict VI guidelines. AnyGen is the first AI that perfectly followed our
+            "We have strict VI guidelines. ClassWeave is the first AI that perfectly followed our
             uploaded corporate templates—fonts, colors, complex layouts. It automated brand
             compliance and saved us hours."
           </div>
@@ -47,7 +47,7 @@ export default {
         <li>
           <div class="career">品牌经理</div>
           <div class="comment">
-            "We have strict VI guidelines. AnyGen is the first AI that perfectly followed our
+            "We have strict VI guidelines. ClassWeave is the first AI that perfectly followed our
             uploaded corporate templates—fonts, colors, complex layouts. It automated brand
             compliance and saved us hours."
           </div>

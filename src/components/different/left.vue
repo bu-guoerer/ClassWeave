@@ -6,7 +6,7 @@
       <slot name="video">
         <!-- 默认视频占位 -->
         <video class="default-video" controls>
-          <source src="" />
+          <source src="../../assets/videos/1.mp4" />
         </video>
       </slot>
     </div>

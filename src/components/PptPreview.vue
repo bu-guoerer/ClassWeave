@@ -41,16 +41,6 @@
       </a>
     </div>
 
-    <details class="debug-panel" :open="Boolean(errorMessage)">
-      <summary class="debug-panel__summary">ONLYOFFICE 调试信息</summary>
-      <div class="debug-panel__grid">
-        <div v-for="item in debugEntries" :key="item.label" class="debug-panel__item">
-          <div class="debug-panel__label">{{ item.label }}</div>
-          <div class="debug-panel__value">{{ item.value || '-' }}</div>
-        </div>
-      </div>
-    </details>
-
     <div
       class="digital-human-layer"
       v-show="isDigitalHumanActive"
@@ -64,18 +54,6 @@
           </div>
         </div>
       </transition>
-
-      <div class="avatar-model">
-        <video
-          src="../assets/videos/shuziren.mp4"
-          ref="dhVideoRef"
-          loop
-          muted
-          playsinline
-          class="digital-human-video"
-        ></video>
-        <div class="glow-ring"></div>
-      </div>
     </div>
 
     <ul class="menu">
@@ -83,15 +61,6 @@
       <li class="menu__item" @click="exitFullscreen" title="退出全屏">⏹</li>
       <li class="menu__item" @click="reloadPreview" title="重新加载">↺</li>
       <li class="menu__item" @click="openDownload" title="下载文件">↓</li>
-
-      <li
-        class="menu__item dh-btn"
-        :class="{ active: isDigitalHumanActive }"
-        @click="toggleDigitalHuman"
-        title="数字人讲解"
-      >
-        AI
-      </li>
     </ul>
   </div>
 </template>
@@ -118,7 +87,6 @@ const {
   loadingText,
   errorMessage,
   resolvedEditorData,
-  debugInfo,
   initPreview,
   destroyEditor,
   getEditor,
@@ -154,24 +122,6 @@ const fallbackDownloadUrl = computed(
 
 // ==================== 核心：监听数据变化自动加载 ====================
 // 替代原先的 onMounted，这样无论父组件异步还是同步传值，都能成功加载！
-const debugEntries = computed(() => {
-  const info = debugInfo.value || {}
-  return [
-    { label: 'phase', value: info.phase },
-    { label: 'requestSource', value: info.requestSource },
-    { label: 'previewSource', value: info.previewSource },
-    { label: 'sessionId', value: info.sessionId },
-    { label: 'taskId', value: info.taskId },
-    { label: 'apiJsUrl', value: info.apiJsUrl },
-    { label: 'documentServerUrl', value: info.documentServerUrl },
-    { label: 'documentUrl', value: info.documentUrl },
-    { label: 'directDownloadUrl', value: info.directDownloadUrl || fallbackDownloadUrl.value },
-    { label: 'fileName', value: info.fileName || previewTitle.value },
-    { label: 'sourceType', value: info.sourceType },
-    { label: 'error', value: info.lastError || errorMessage.value },
-  ]
-})
-
 onMounted(() => {
   // 必须等 DOM 渲染完，才能交给 ONLYOFFICE 去挂载
   initPreview(normalizedConfig.value, editorEl.value)
@@ -185,7 +135,7 @@ watch(
 
     initPreview(config, editorEl.value)
   },
-  { deep: true },
+  { deep: true }
 )
 
 onBeforeUnmount(() => {
@@ -251,21 +201,22 @@ function speak(text: string) {
 
   window.speechSynthesis.cancel()
   const utterance = new SpeechSynthesisUtterance(text)
-  
+
   // 1. 基础设置
   utterance.lang = 'zh-CN'
-  utterance.rate = 1 
+  utterance.rate = 1
   utterance.pitch = 1 // 【修改】将 pitch 从 1.1 改回 1，恢复正常音调，避免声音发飘
 
   // 2. 【新增】尝试获取系统中更自然的真人语音包
   const voices = window.speechSynthesis.getVoices()
   // 优先寻找 Edge 浏览器或 Windows 系统自带的高质量语音（如晓晓），它们非常接近真人
-  const naturalVoice = voices.find(voice => 
-    voice.name.includes('Xiaoxiao') || 
-    voice.name.includes('Yaoyao') ||
-    voice.name.includes('Tingting')
+  const naturalVoice = voices.find(
+    (voice) =>
+      voice.name.includes('Xiaoxiao') ||
+      voice.name.includes('Yaoyao') ||
+      voice.name.includes('Tingting')
   )
-  
+
   if (naturalVoice) {
     utterance.voice = naturalVoice
   }
@@ -281,7 +232,7 @@ function speak(text: string) {
       if (!isSpeaking.value) currentSpeechText.value = ''
     }, 2000)
   }
-  
+
   window.speechSynthesis.speak(utterance)
 }
 
@@ -432,65 +383,6 @@ watch(isSpeaking, (newVal) => {
   font-weight: 600;
 }
 
-.debug-panel {
-  position: absolute;
-  left: 20px;
-  right: 20px;
-  bottom: 84px;
-  z-index: 85;
-  border: 1px solid rgba(24, 39, 75, 0.12);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 10px 28px rgba(14, 26, 45, 0.08);
-  overflow: hidden;
-}
-
-.debug-panel__summary {
-  padding: 10px 14px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 700;
-  color: #24344d;
-  list-style: none;
-}
-
-.debug-panel__summary::-webkit-details-marker {
-  display: none;
-}
-
-.debug-panel__grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  padding: 0 14px 14px;
-}
-
-.debug-panel__item {
-  min-width: 0;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: #f7f9fc;
-  border: 1px solid #e6ecf5;
-}
-
-.debug-panel__label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #6c7a90;
-}
-
-.debug-panel__value {
-  margin-top: 6px;
-  font-size: 12px;
-  line-height: 1.55;
-  color: #233248;
-  word-break: break-all;
-  white-space: pre-wrap;
-}
-
 .menu {
   position: absolute;
   left: 50%;
@@ -546,10 +438,10 @@ watch(isSpeaking, (newVal) => {
   align-items: flex-end;
   z-index: 90;
   pointer-events: none;
-  transition: opacity 0.3s ease; 
+  transition: opacity 0.3s ease;
 }
 .digital-human-layer:hover {
-  opacity: 0.25; 
+  opacity: 0.25;
 }
 .speech-bubble {
   max-width: 250px;

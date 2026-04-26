@@ -1,14 +1,14 @@
 <!-- BigDifferent.vue -->
 <template>
   <div class="big-different">
-    <div class="video"><video src="" class="total" controls></video></div>
+    <div class="video"><video src="../../assets/videos/1.mp4" class="total" controls></video></div>
     <div class="text">ClassWeave织课，大不同</div>
     <!-- different 盒子：放入 left.vue 和 right.vue -->
     <div class="different">
       <!-- 第一个 Left 组件：幻灯片，完全不同的猛兽 -->
       <Left>
         <template #video>
-          <video src="" class="custom-video" controls></video>
+          <video src="../../assets/videos/3.mp4" class="custom-video" controls></video>
         </template>
         <template #title>
           <h3 class="custom-title">重塑幻灯片创作：AI 驱动的全新物种</h3>
@@ -24,14 +24,14 @@
       <!-- 第一个 Right 组件：一站式搞定，无需来回导出切换 -->
       <Right>
         <template #video>
-          <video src="" class="custom-video" controls></video>
+          <video src="../../assets/videos/2.mp4" class="custom-video" controls></video>
         </template>
         <template #title>
           <h3 class="custom-title">无缝工作流：从生成到精修，全程无需切换</h3>
         </template>
         <template #content>
           <p class="custom-content">
-            扩展内容、润色措辞、突出重点——所有操作都在 AnyGen 内完成，让你的心流永不中断。
+            扩展内容、润色措辞、突出重点——所有操作都在ClassWeave织课内完成，让你的心流永不中断。
           </p>
         </template>
       </Right>
@@ -39,15 +39,15 @@
       <!-- 第二个 Left 组件：和你一起共创，而不只是生成 -->
       <Left>
         <template #video>
-          <video src="" class="custom-video" controls></video>
+          <video src="../../assets/videos/6.mp4" class="custom-video" controls></video>
         </template>
         <template #title>
-          <h3 class="custom-title">智能协作伙伴：共创，而非单纯生成</h3>
+          <h3 class="custom-title">智能创作伙伴：支持多种导出方式与插件系统</h3>
         </template>
         <template #content>
           <p class="custom-content">
-            从构思、打磨到定稿，每一次修改都精准局部更新，而非全盘重写。
-            真正的创作需要协作，快速生成只是起点。
+            多样化功能设计，满足您的需求，
+            真正的创作需要自由，快速生成只是起点。
           </p>
         </template>
       </Left>
@@ -55,15 +55,15 @@
       <!-- 第二个 Right 组件：别的 AI 在猜，我们的在核查 -->
       <Right>
         <template #video>
-          <video src="" class="custom-video" controls></video>
+          <video src="../../assets/videos/4.mp4" class="custom-video" controls></video>
         </template>
         <template #title>
-          <h3 class="custom-title">双重核查机制：一个创作，一个验证</h3>
+          <h3 class="custom-title">数字人机制：一站式搭配讲解</h3>
         </template>
         <template #content>
           <p class="custom-content">
-            一个 AI 负责生成，另一个独立核查事实——在内容抵达同事或客户前，
-            将不准确的信息拦截在外，确保交付可靠。
+            一个 AI 负责生成，另一个独立讲解PPT内容，
+            将需要传递的知识准确传达，确保专业性。
           </p>
         </template>
       </Right>
@@ -71,7 +71,7 @@
       <!-- 第三个 Left 组件：别再独自费力想指令，AI 带你思考 -->
       <Left>
         <template #video>
-          <video src="" class="custom-video" controls></video>
+          <video src="../../assets/videos/5.mp4" class="custom-video" controls></video>
         </template>
         <template #title>
           <h3 class="custom-title">引导式创作：告别指令焦虑，AI 带你精准抵达</h3>
@@ -103,7 +103,7 @@ import Right from '../different/right.vue'
 /* 顶部视频区域：桌面高度 690px，移动端使用视口相对单位 */
 .big-different .video {
   width: 100%;
-  height: 690px;
+  height: 600px;
   border-radius: 5px;
 }
 
@@ -112,7 +112,6 @@ import Right from '../different/right.vue'
   height: 100%;
   border-radius: 10px;
   box-shadow: 1px 1px 5px gray;
-  object-fit: cover; /* 防止视频变形，按比例覆盖 */
 }
 
 /* 主标题：桌面 50px，移动端通过 clamp 动态调整，并减小垂直间距 */

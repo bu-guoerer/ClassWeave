@@ -98,17 +98,23 @@ export function fetchPptArtifactsApi(sessionId) {
   })
 }
 
-export function fetchPptOnlyofficePreviewApi(sessionId) {
+export function fetchPptOnlyofficePreviewApi(sessionId, options = {}) {
   return request({
     url: `/ppt/sessions/${encodeURIComponent(sessionId)}/onlyoffice-preview`,
     method: 'GET',
+    params: {
+      mode: options.mode || 'edit',
+    },
   })
 }
 
-export function fetchPptTaskOnlyofficePreviewApi(taskId) {
+export function fetchPptTaskOnlyofficePreviewApi(taskId, options = {}) {
   return request({
     url: `/ppt/tasks/${encodeURIComponent(taskId)}/onlyoffice-preview`,
     method: 'GET',
+    params: {
+      mode: options.mode || 'edit',
+    },
   })
 }
 

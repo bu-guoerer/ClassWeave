@@ -11,7 +11,7 @@ import {
 import { loadOnlyOfficeScript } from '@/utils/onlyoffice-helper'
 
 const DEFAULT_API_BASE_URL = ''
-const resolvePluginConfigUrl = () => `${window.location.origin}/plugins/html-embedder/config.json`
+const DEFAULT_PREVIEW_REQUEST_TIMEOUT = 20000
 const unwrapResponseData = (payload) => payload?.data ?? payload ?? null
 const deriveApiJsUrl = (documentServerUrl) =>
   documentServerUrl
@@ -100,6 +100,22 @@ const createDebugInfo = () => ({
   directDownloadUrl: '',
   lastError: '',
 })
+const withTimeout = (promise, timeoutMs, message) =>
+  new Promise((resolve, reject) => {
+    const timer = window.setTimeout(() => {
+      reject(new Error(message))
+    }, timeoutMs)
+
+    Promise.resolve(promise)
+      .then((value) => {
+        window.clearTimeout(timer)
+        resolve(value)
+      })
+      .catch((error) => {
+        window.clearTimeout(timer)
+        reject(error)
+      })
+  })
 
 export function useOnlyOffice(editorElementId) {
   const isLoading = ref(false)
@@ -122,6 +138,7 @@ export function useOnlyOffice(editorElementId) {
       docEditor.destroyEditor()
     }
     docEditor = null
+    resolvedEditorData.value = null
     if (editorEl) {
       editorEl.innerHTML = ''
     }
@@ -135,13 +152,14 @@ export function useOnlyOffice(editorElementId) {
     const baseEvents = baseConfig.events || {}
     const innerEditorConfig = baseConfig.editorConfig || {}
     const basePermissions = baseConfig.document?.permissions || {}
+    const documentFileType = String(baseConfig.document?.fileType || '').toLowerCase()
+    const isPdf = documentFileType === 'pdf'
+    const requestedMode = isPdf ? 'view' : 'edit'
     const pluginDataList = innerEditorConfig.plugins?.pluginsData || []
-    const mergedPluginData = pluginDataList.includes(resolvePluginConfigUrl())
-      ? pluginDataList
-      : [...pluginDataList, resolvePluginConfigUrl()]
 
     return {
       ...baseConfig,
+      type: 'desktop',
       width: baseConfig.width || '100%',
       height: baseConfig.height || '100%',
       lang: baseConfig.lang || innerEditorConfig.lang || 'zh-CN',
@@ -149,13 +167,19 @@ export function useOnlyOffice(editorElementId) {
         ...baseConfig.document,
         permissions: {
           ...basePermissions,
+          edit: !isPdf,
+          review: !isPdf,
+          comment: !isPdf,
+          fillForms: !isPdf,
+          modifyContentControl: !isPdf,
+          modifyFilter: !isPdf,
           download: basePermissions.download ?? true,
           print: basePermissions.print ?? true,
         },
       },
       editorConfig: {
         ...innerEditorConfig,
-        mode: innerEditorConfig.mode || 'view',
+        mode: requestedMode,
         lang: innerEditorConfig.lang || baseConfig.lang || 'zh-CN',
         customization: {
           ...(innerEditorConfig.customization || {}),
@@ -165,7 +189,7 @@ export function useOnlyOffice(editorElementId) {
         plugins: {
           ...(innerEditorConfig.plugins || {}),
           autostart: innerEditorConfig.plugins?.autostart || [],
-          pluginsData: mergedPluginData,
+          pluginsData: pluginDataList,
         },
       },
       events: {
@@ -264,7 +288,11 @@ export function useOnlyOffice(editorElementId) {
           requestSource: `/api/ppt/sessions/${config.sessionId}/onlyoffice-preview`,
         })
         try {
-          const response = await fetchPptOnlyofficePreviewApi(config.sessionId)
+          const response = await withTimeout(
+            fetchPptOnlyofficePreviewApi(config.sessionId, { mode: config.mode || 'edit' }),
+            DEFAULT_PREVIEW_REQUEST_TIMEOUT,
+            'Fetching ONLYOFFICE preview config timed out.',
+          )
           editorData = normalizeEditorData(response, config.fileName)
         } catch (sessionPreviewError) {
           if (!config.taskId) {
@@ -280,7 +308,11 @@ export function useOnlyOffice(editorElementId) {
                 ? sessionPreviewError.message
                 : String(sessionPreviewError || ''),
           })
-          const taskResponse = await fetchPptTaskOnlyofficePreviewApi(config.taskId)
+          const taskResponse = await withTimeout(
+            fetchPptTaskOnlyofficePreviewApi(config.taskId, { mode: config.mode || 'edit' }),
+            DEFAULT_PREVIEW_REQUEST_TIMEOUT,
+            'Fetching ONLYOFFICE task preview config timed out.',
+          )
           editorData = normalizeEditorData(taskResponse, config.fileName)
         }
       } else if (config.previewSource === 'ppt-task-onlyoffice' && config.taskId) {
@@ -289,7 +321,11 @@ export function useOnlyOffice(editorElementId) {
           phase: 'fetching-task-preview',
           requestSource: `/api/ppt/tasks/${config.taskId}/onlyoffice-preview`,
         })
-        const response = await fetchPptTaskOnlyofficePreviewApi(config.taskId)
+        const response = await withTimeout(
+          fetchPptTaskOnlyofficePreviewApi(config.taskId, { mode: config.mode || 'edit' }),
+          DEFAULT_PREVIEW_REQUEST_TIMEOUT,
+          'Fetching ONLYOFFICE task preview config timed out.',
+        )
         editorData = normalizeEditorData(response, config.fileName)
       } else if (!config.fileId) {
         throw new Error('Preview fileId is missing.')
@@ -314,15 +350,26 @@ export function useOnlyOffice(editorElementId) {
 
         try {
           loadingText.value = 'Registering file...'
-          await registerFileApi(apiBaseUrl, payload)
+          await withTimeout(
+            registerFileApi(apiBaseUrl, payload),
+            DEFAULT_PREVIEW_REQUEST_TIMEOUT,
+            'Registering the preview file timed out.',
+          )
 
           loadingText.value = 'Fetching editor config...'
           setDebugInfo({
             phase: 'fetching-editor-config',
             requestSource: `${apiBaseUrl || '/api'}/onlyoffice/files/${payload.fileId}/editor-config`,
           })
-          const res = await fetchEditorConfigApi(apiBaseUrl, payload)
-          editorData = normalizeEditorData(res, payload.fileName)
+          const res = await withTimeout(
+            fetchEditorConfigApi(apiBaseUrl, payload),
+            DEFAULT_PREVIEW_REQUEST_TIMEOUT,
+            'Fetching ONLYOFFICE editor config timed out.',
+          )
+          editorData = {
+            ...normalizeEditorData(res, payload.fileName),
+            mode: payload.mode,
+          }
         } catch (primaryError) {
           if (!payload.directDownloadUrl) {
             throw primaryError
@@ -335,15 +382,37 @@ export function useOnlyOffice(editorElementId) {
             lastError:
               primaryError instanceof Error ? primaryError.message : String(primaryError || ''),
           })
-          const fallbackRes = await getMockOnlyOfficePreviewApi(
-            buildMockPreviewPayload(config, payload),
+          const fallbackRes = await withTimeout(
+            getMockOnlyOfficePreviewApi(buildMockPreviewPayload(config, payload)),
+            DEFAULT_PREVIEW_REQUEST_TIMEOUT,
+            'Fetching fallback preview config timed out.',
           )
-          editorData = normalizeEditorData(fallbackRes, payload.fileName)
+          editorData = {
+            ...normalizeEditorData(fallbackRes, payload.fileName),
+            mode: payload.mode,
+          }
 
           if (!editorData?.apiJsUrl) {
             throw primaryError
           }
         }
+      }
+
+      const requestedPreviewMode =
+        config.mode ||
+        (config.previewSource && String(config.previewSource).includes('ppt') ? 'edit' : '')
+
+      if (requestedPreviewMode) {
+        editorData = {
+          ...editorData,
+          mode: requestedPreviewMode,
+        }
+      }
+
+      editorData = {
+        ...editorData,
+        mode: editorData?.editorConfig?.document?.fileType === 'pdf' ? 'view' : 'edit',
+        readOnlyPreview: editorData?.editorConfig?.document?.fileType === 'pdf',
       }
 
       resolvedEditorData.value = editorData

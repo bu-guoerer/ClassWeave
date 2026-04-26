@@ -11,7 +11,7 @@ import Home from '../views/Home.vue'
 import AIDoc from '../views/AIDoc.vue'
 import AISlide from '../views/AISlide.vue'
 import ReactPage from '../views/React.vue'
-
+import LigongBase from '../views/LigongBase.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -39,6 +39,11 @@ const router = createRouter({
       path: '/knowledge',
       name: 'knowledge',
       component: KnowledgeBase
+    },
+      {
+      path: '/ligong',
+      name: 'ligong',
+      component: LigongBase
     },
     {
       path: '/templates',
