@@ -1,0 +1,30 @@
+{
+  "name": "插入H5小游戏",
+  "nameLocale": {
+    "zh": "插入H5小游戏",
+    "en": "Insert H5 Game"
+  },
+  "guid": "asc.{FFE1F462-1E74-4D2C-8C1F-0A0A0A0A0A01}",
+  "baseUrl": "",
+  "variations": [
+    {
+      "description": "在演示文稿中插入H5小游戏并播放",
+      "descriptionLocale": {
+        "zh": "在演示文稿中插入H5小游戏并播放",
+        "en": "Insert an H5 game into presentation"
+      },
+      "url": "index.html",
+      "icons": [
+        "./icon.png"
+      ],
+      "isViewer": true,               
+      "EditorsSupport": [
+        "slide"
+      ],
+      "isVisual": true,
+      "isModal": true,
+      "initDataType": "ole",          
+      "buttons": []                   
+    }
+  ]
+}

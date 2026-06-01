@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>插入H5网页</title>
+    <style>
+        /* 基础重置 */
+        html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: "PingFang SC", "Microsoft YaHei", sans-serif; }
+        
+        /* 播放模式下的 iframe 样式 */
+        iframe { width: 100%; height: 100%; border: none; display: block; }
+        
+        /* 插入模式下的 UI 界面样式 */
+        .insert-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background-color: #f5f7fa;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .insert-card {
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 80%;
+            max-width: 400px;
+        }
+        h3 { margin-top: 0; color: #333; }
+        select, input {
+            width: 100%;
+            padding: 10px;
+            margin: 15px 0;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #1677ff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        button:hover { background-color: #4096ff; }
+    </style>
+    <script type="text/javascript" src="https://onlyoffice.github.io/sdkjs-plugins/v1/plugins.js"></script>
+    <script type="text/javascript" src="https://onlyoffice.github.io/sdkjs-plugins/v1/plugins-ui.js"></script>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script>
+        window.Asc.plugin.init = function() {
+            var appDiv = document.getElementById("app");
+
+            // 判断是否存在 objectId，存在则说明是“点击画布占位图”触发的播放模式
+            if (window.Asc.plugin.info.objectId) {
+                
+                // ==========================================
+                // 模式 A：播放模式
+                // ==========================================
+                var oleData = window.Asc.plugin.info.data;
+                if (oleData) {
+                    var parsedData = JSON.parse(oleData);
+                    // 动态创建 iframe 播放网页
+                    appDiv.innerHTML = '<iframe src="' + parsedData.url + '"></iframe>';
+                } else {
+                    appDiv.innerHTML = '<h3 style="text-align:center; padding-top:20px;">未能读取到网页地址</h3>';
+                }
+
+            } else {
+                
+                // ==========================================
+                // 模式 B：插入模式（显示选择界面）
+                // ==========================================
+                
+                // 1. 渲染一个带有下拉框和确认按钮的界面
+                // 【核心修改点1】：给每个 option 加上 data-img 属性，配置它们各自对应的封面图
+                appDiv.innerHTML = `
+                    <div class="insert-container">
+                        <div class="insert-card">
+                            <h3>请选择要插入的 H5 网页</h3>
+                            
+                            <select id="html-selector">
+                                <option 
+                                    value="http://localhost:5173/h5/ai-generated.html" 
+                                    data-img="https://picui.ogmua.cn/s1/2026/03/26/69c4c689abf26.webp">
+                                    AI 生成网页 1
+                                </option>
+                                <option 
+                                    value="http://localhost:5173/h5/quiz.html" 
+                                    data-img="https://picui.ogmua.cn/s1/2026/03/26/69c4c941219e9.webp">
+                                    互动小游戏
+                                </option>
+                            </select>
+                            
+                            <input type="text" id="custom-url" placeholder="或在此手动输入完整的网页地址" />
+
+                            <button id="insert-btn">确认插入到幻灯片</button>
+                        </div>
+                    </div>
+                `;
+
+                // 2. 为确认按钮绑定点击事件
+                document.getElementById("insert-btn").onclick = function() {
+                    // 获取下拉列表元素
+                    var selector = document.getElementById("html-selector");
+                    // 获取当前被选中的 option 标签
+                    var selectedOption = selector.options[selector.selectedIndex];
+                    
+                    // 分别拿到绑定的网页URL和图片URL
+                    var selectedUrl = selectedOption.value;
+                    var selectedImg = selectedOption.getAttribute("data-img");
+
+                    // 检查是否手动输入了自定义地址
+                    var customUrl = document.getElementById("custom-url").value.trim();
+                    var finalUrl = customUrl ? customUrl : selectedUrl;
+
+                    if (!finalUrl) {
+                        alert("请提供有效的网页地址！");
+                        return;
+                    }
+
+                    // 【核心修改点2】：动态决定使用哪张图片
+                    // 如果用户自己输入了外部链接，就用一张默认通用的封面图；如果是选择的列表项，就用绑定的图片
+                    var defaultImg = "https://picui.ogmua.cn/s1/2026/03/26/69c4c689abf26.webp";
+                    var finalImgUrl = customUrl ? defaultImg : selectedImg;
+
+                    // 准备数据
+                    var oleData = JSON.stringify({ url: finalUrl });
+
+                    var _param = {
+                        "data": oleData,
+                        "imgSrc": finalImgUrl, // 这里传入我们动态获取到的对应图片
+                        "guid": "asc.{FFE1F462-1E74-4D2C-8C1F-0A0A0A0A0A01}", // 必须和 config.json 一致
+                        "width": 150,
+                        "height": 100,
+                        "widthPix": 150 * 36000,
+                        "heightPix": 100 * 36000
+                    };
+
+                    // 执行插入指令
+                    window.Asc.plugin.executeMethod("AddOleObject", [_param], function() {
+                        // 插入成功后关闭弹窗
+                        window.Asc.plugin.executeCommand("close", ""); 
+                    });
+                };
+            }
+        };
+    </script>
+</body>
+</html>

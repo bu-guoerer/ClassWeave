@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transformer 教学动画演示</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121935;
+      --text: #eef3ff;
+      --muted: #a9b6df;
+      --accent: #6ea8fe;
+      --accent-2: #8ef0c8;
+      --warn: #ffd166;
+      --shadow: 0 10px 30px rgba(0,0,0,.24);
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      background: radial-gradient(circle at top, #16214a 0%, var(--bg) 58%);
+      color: var(--text);
+    }
+    .container {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 14px;
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      margin-bottom: 12px;
+      align-items: stretch;
+    }
+    .hero-left, .hero-right, .main-stage { padding: 14px 18px; }
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.2;
+    }
+    .subtitle, .tag-row { display: none; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(100px, 1fr));
+      gap: 8px;
+    }
+    .stat {
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.06);
+      min-width: 0;
+    }
+    .stat .k { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+    .stat .v { font-size: 18px; font-weight: 700; }
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .sidebar {
+      padding: 14px;
+      position: sticky;
+      top: 10px;
+      max-height: calc(100vh - 20px);
+      overflow: auto;
+    }
+    .step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .step-item {
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+      cursor: pointer;
+      transition: .2s ease;
+    }
+    .step-item:hover { border-color: rgba(110,168,254,.42); }
+    .step-item.active {
+      background: linear-gradient(90deg, rgba(110,168,254,.18), rgba(142,240,200,.08));
+      border-color: rgba(110,168,254,.45);
+    }
+    .step-index { font-size: 11px; color: var(--warn); margin-bottom: 4px; }
+    .step-title { font-size: 14px; font-weight: 700; line-height: 1.35; }
+    .step-desc { display: none; }
+    .main-stage { min-height: auto; }
+    .stage-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .title-box h2 { margin: 0 0 4px; font-size: 22px; }
+    .title-box p { margin: 0; color: var(--muted); line-height: 1.5; font-size: 13px; }
+    .controls { display: flex; flex-wrap: wrap; gap: 8px; }
+    button {
+      border: none;
+      padding: 9px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: .2s ease;
+      color: white;
+      background: #2a3c7a;
+    }
+    button:hover { transform: translateY(-1px); }
+    .primary { background: linear-gradient(90deg, #4d7fff, #45c0ff); }
+    .success { background: linear-gradient(90deg, #16a085, #39d98a); }
+    .ghost { background: rgba(255,255,255,.08); }
+    .progress-wrap {
+      width: 100%;
+      height: 8px;
+      background: rgba(255,255,255,.08);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #6ea8fe, #8ef0c8);
+      transition: width .35s ease;
+    }
+    .visual-zone {
+      display: grid;
+      grid-template-columns: 1.05fr 1.15fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .left-col, .right-col {
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .sentence-row, .token-row, .encoder-board, .matrix-board, .output-board {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 16px;
+      padding: 14px;
+      min-width: 0;
+    }
+    .sentence-row h3, .token-row h3, .encoder-board h3, .matrix-board h3, .output-board h3 { margin: 0 0 10px; font-size: 16px; }
+    .word-list, .token-list, .output-list, .small-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .word, .token, .head-box, .output-chip {
+      padding: 9px 12px;
+      border-radius: 12px;
+      background: #1b2550;
+      border: 1px solid rgba(255,255,255,.08);
+      transition: .25s ease;
+      min-width: 68px;
+      text-align: center;
+    }
+    .word.active, .token.active, .head-box.active, .output-chip.active {
+      transform: translateY(-3px);
+      background: linear-gradient(180deg, #315edc, #233b86);
+      box-shadow: 0 8px 18px rgba(78,124,255,.25);
+    }
+    .token::after {
+      content: attr(data-sub);
+      display: block;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+    .encoder-stack {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+    .layer {
+      min-height: 92px;
+      border-radius: 14px;
+      padding: 10px;
+      background: linear-gradient(180deg, rgba(110,168,254,.08), rgba(255,255,255,.03));
+      border: 1px solid rgba(255,255,255,.08);
+      transition: .25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .layer.active {
+      transform: translateY(-4px);
+      border-color: rgba(142,240,200,.55);
+      box-shadow: 0 10px 20px rgba(24,195,157,.12);
+    }
+    .layer-title { font-weight: 700; margin-bottom: 6px; font-size: 14px; }
+    .layer-text { color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .pulse {
+      position: absolute; inset: auto 8px 8px auto; width: 10px; height: 10px; border-radius: 50%; background: #8ef0c8;
+      box-shadow: 0 0 0 rgba(142,240,200,.5); animation: ping 1.6s infinite; opacity: 0;
+    }
+    .layer.active .pulse { opacity: 1; }
+    @keyframes ping {
+      0% { box-shadow: 0 0 0 0 rgba(142,240,200,.45); }
+      70% { box-shadow: 0 0 0 14px rgba(142,240,200,0); }
+      100% { box-shadow: 0 0 0 0 rgba(142,240,200,0); }
+    }
+    .attention-grid {
+      display: grid;
+      grid-template-columns: 72px repeat(6, minmax(0, 1fr));
+      gap: 6px;
+      align-items: center;
+    }
+    .grid-label, .grid-cell {
+      padding: 7px 4px;
+      text-align: center;
+      border-radius: 9px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.06);
+      font-size: 11px;
+      transition: .25s ease;
+      min-width: 0;
+    }
+    .grid-label { background: rgba(110,168,254,.12); }
+    .grid-cell.hot {
+      background: linear-gradient(180deg, rgba(255,209,102,.3), rgba(255,123,123,.18));
+      border-color: rgba(255,209,102,.5);
+      transform: scale(1.03);
+    }
+    .heads {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .head-box {
+      min-height: 64px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 4px;
+      background: rgba(255,255,255,.04);
+      padding: 8px;
+    }
+    .head-box strong { font-size: 14px; }
+    .head-box span { font-size: 11px; color: var(--muted); line-height: 1.35; }
+    .output-list { margin-bottom: 10px; }
+    .output-chip { background: rgba(142,240,200,.08); border-color: rgba(142,240,200,.18); }
+    .formula {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.04);
+      font-family: Consolas, monospace;
+      color: #d9ecff;
+      font-size: 13px;
+      overflow: auto;
+    }
+    .explain-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .explain-mini {
+      background: rgba(255,255,255,.025);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    .explain-mini h4 { margin: 0 0 6px; font-size: 14px; }
+    .explain-mini p { margin: 0; color: var(--muted); line-height: 1.55; font-size: 12px; }
+    .mini-pipeline { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .mini {
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.08);
+      font-size: 11px;
+    }
+    .bottom-panel { display:none; }
+    @media (max-width: 1180px) {
+      .hero { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .visual-zone, .layout, .encoder-stack, .heads, .explain-grid { grid-template-columns: 1fr; }
+      .sidebar { position: static; max-height: none; }
+    }
+    @media (max-width: 720px) {
+      .container { padding: 10px; }
+      .hero-left, .hero-right, .main-stage, .sidebar { padding: 12px; }
+      h1 { font-size: 20px; }
+      .title-box h2 { font-size: 18px; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .attention-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <div class="hero-left card">
+        <h1>Transformer 教学动画演示</h1>
+      </div>
+      <div class="hero-right card">
+        <div class="stats">
+          <div class="stat">
+            <div class="k">核心知识点</div>
+            <div class="v">7 个步骤</div>
+          </div>
+          <div class="stat">
+            <div class="k">演示模式</div>
+            <div class="v">自动 / 手动</div>
+          </div>
+          <div class="stat">
+            <div class="k">适用课程</div>
+            <div class="v">AI / NLP</div>
+          </div>
+          <div class="stat">
+            <div class="k">课堂形式</div>
+            <div class="v">讲解 + 互动</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="layout">
+      <aside class="sidebar card">
+        <h3 style="margin:0;">讲解目录</h3>
+        <div class="step-list" id="stepList"></div>
+      </aside>
+
+      <main class="main-stage card">
+        <div class="stage-top">
+          <div class="title-box">
+            <h2 id="stageTitle">步骤标题</h2>
+            <p id="stageSubtitle">步骤说明</p>
+          </div>
+          <div class="controls">
+            <button class="ghost" id="prevBtn">上一步</button>
+            <button class="primary" id="playBtn">自动播放</button>
+            <button class="success" id="nextBtn">下一步</button>
+            <button class="ghost" id="resetBtn">重新开始</button>
+          </div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <section class="visual-zone">
+          <div class="left-col">
+            <div class="sentence-row">
+              <h3>示例输入句子</h3>
+              <div class="word-list" id="wordList"></div>
+            </div>
+
+            <div class="token-row">
+              <h3>Token / Embedding</h3>
+              <div class="token-list" id="tokenList"></div>
+              <div class="formula" id="formulaBox">Embedding + Positional Encoding</div>
+            </div>
+
+            <div class="encoder-board">
+              <h3>编码流程</h3>
+              <div class="encoder-stack" id="encoderStack"></div>
+            </div>
+          </div>
+
+          <div class="right-col">
+            <div class="matrix-board">
+              <h3>注意力权重示意</h3>
+              <div class="attention-grid" id="attentionGrid"></div>
+              <div class="heads" id="headContainer"></div>
+            </div>
+
+            <div class="output-board">
+              <h3>输出与讲解要点</h3>
+              <div class="output-list" id="outputList"></div>
+              <div class="explain-grid">
+                <div class="explain-mini">
+                  <h4>讲解词</h4>
+                  <p id="teacherNote"></p>
+                  <div class="mini-pipeline" id="miniPipeline"></div>
+                </div>
+                <div class="explain-mini">
+                  <h4>课堂提示</h4>
+                  <p id="classTip"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </section>
+  </div>
+
+  <script>
+    const words = ["我", "喜欢", "学习", "Transformer", "模型", "。"];
+
+    const tokenSubs = [
+      "Token 1",
+      "Token 2",
+      "Token 3",
+      "Token 4",
+      "Token 5",
+      "Token 6"
+    ];
+
+    const layers = [
+      { title: "输入 Token", text: "将句子切分成模型可以处理的最小单元。" },
+      { title: "Embedding", text: "把离散词转换为连续向量，方便神经网络处理。" },
+      { title: "位置编码", text: "加入顺序信息，让模型知道谁在前谁在后。" },
+      { title: "多头自注意力", text: "不同注意力头从不同角度理解上下文关系。" },
+      { title: "前馈网络", text: "对每个位置单独做非线性变换，增强表达能力。" }
+    ];
+
+    const steps = [
+      {
+        title: "1. 输入句子与分词",
+        subtitle: "先把自然语言句子拆分成模型可处理的 Token。",
+        note: "教师可先提问：为什么神经网络不能直接处理整句文本？引导学生理解，模型接收的是数字化后的序列，而不是原始语言字符串。",
+        tip: "课堂互动建议：让学生自己尝试把一句中文或英文切成 Token，并思考词、子词、字符切分的差异。",
+        formula: "Input Sentence -> Tokenization",
+        activeWords: [0,1,2,3,4,5],
+        activeTokens: [],
+        activeLayers: [0],
+        hotCells: [],
+        activeHeads: [],
+        outputs: ["Token 序列生成"],
+        pipeline: ["输入文本", "切分 Token"]
+      },
+      {
+        title: "2. 词嵌入 Embedding",
+        subtitle: "每个 Token 被映射为一个高维向量。",
+        note: "这里可以强调：Embedding 就像给每个词分配一组特征坐标。语义相近的词，在向量空间中通常更接近。",
+        tip: "可以类比地理坐标：词不再是标签，而是被放到一个多维空间里的点。",
+        formula: "x_i = Embedding(token_i)",
+        activeWords: [0,1,2,3,4,5],
+        activeTokens: [0,1,2,3,4,5],
+        activeLayers: [0,1],
+        hotCells: [],
+        activeHeads: [],
+        outputs: ["向量表示生成"],
+        pipeline: ["输入文本", "切分 Token", "查表得到向量"]
+      },
+      {
+        title: "3. 加入位置编码",
+        subtitle: "Transformer 本身没有循环结构，因此要显式加入位置信息。",
+        note: "这一步非常关键。没有位置编码，模型只知道有哪些词，却不知道它们出现的先后顺序。",
+        tip: "可以引导学生思考：'我喜欢你' 和 '你喜欢我' 的词几乎一样，但顺序不同，含义就不同。",
+        formula: "z_i = Embedding(token_i) + PositionalEncoding(i)",
+        activeWords: [0,1,2,3,4,5],
+        activeTokens: [0,1,2,3,4,5],
+        activeLayers: [0,1,2],
+        hotCells: [],
+        activeHeads: [],
+        outputs: ["带位置信息的序列"],
+        pipeline: ["输入文本", "Token", "Embedding", "+ Position"]
+      },
+      {
+        title: "4. 自注意力 Self-Attention",
+        subtitle: "每个词在理解自己时，会关注句子中的其他词。",
+        note: "请重点讲解：当前词不是孤立理解，而是通过与其他词计算相关性，决定应该关注谁。比如 '学习' 可能会更关注 'Transformer' 和 '模型'。",
+        tip: "可以把注意力理解为“看上下文时的目光分配”。相关性越高，权重越大。",
+        formula: "Attention(Q,K,V) = softmax(QK^T / sqrt(d_k))V",
+        activeWords: [2,3,4],
+        activeTokens: [2,3,4],
+        activeLayers: [0,1,2,3],
+        hotCells: [23, 24, 26, 30, 33],
+        activeHeads: [0],
+        outputs: ["上下文语义融合"],
+        pipeline: ["Q", "K", "V", "相关性计算", "加权求和"]
+      },
+      {
+        title: "5. 多头注意力 Multi-Head Attention",
+        subtitle: "不同的注意力头可以从不同角度理解一句话。",
+        note: "多头机制的意义在于：有的头关注语法关系，有的头关注语义搭配，还有的头关注长距离依赖。多个头并行后再拼接，表达更丰富。",
+        tip: "课堂上可让学生把 4 个头理解为 4 位观察者：每个人关注点不同，合起来看得更全面。",
+        formula: "MultiHead(Q,K,V) = Concat(head_1,...,head_h)W^O",
+        activeWords: [1,2,3,4],
+        activeTokens: [1,2,3,4],
+        activeLayers: [0,1,2,3],
+        hotCells: [15, 16, 23, 24, 31, 38],
+        activeHeads: [0,1,2,3],
+        outputs: ["多个上下文视角"],
+        pipeline: ["Head1", "Head2", "Head3", "Head4", "拼接输出"]
+      },
+      {
+        title: "6. 前馈网络与残差连接",
+        subtitle: "对每个位置做进一步变换，并通过残差保留原始信息。",
+        note: "这里可以补充完整结构：注意力层后通常接 Add & Norm，再进入前馈网络，再做一次 Add & Norm。这样更稳定，也更容易训练深层模型。",
+        tip: "给学生一个记忆法：注意力负责“看别人”，前馈网络负责“加工自己”。",
+        formula: "FFN(x) = max(0, xW_1 + b_1)W_2 + b_2",
+        activeWords: [0,1,2,3,4,5],
+        activeTokens: [0,1,2,3,4,5],
+        activeLayers: [0,1,2,3,4],
+        hotCells: [8, 15, 22, 29, 36],
+        activeHeads: [1,2],
+        outputs: ["更强的特征表示", "保留原始信息"],
+        pipeline: ["Attention", "Add & Norm", "FFN", "Add & Norm"]
+      },
+      {
+        title: "7. 输出表示与课堂总结",
+        subtitle: "经过编码后，每个位置都获得融合上下文的表示，可用于分类、翻译、生成等任务。",
+        note: "最后总结：Transformer 的关键不在于“按顺序读”，而在于“让每个词都能直接看到整个句子，并动态分配关注权重”。这就是它强大的原因。",
+        tip: "可以进一步追问学生：为什么 Transformer 比传统 RNN 更适合并行训练？为什么它更适合长距离依赖建模？",
+        formula: "Contextual Representations -> Task Head -> Output",
+        activeWords: [0,1,2,3,4,5],
+        activeTokens: [0,1,2,3,4,5],
+        activeLayers: [0,1,2,3,4],
+        hotCells: [9, 10, 16, 23, 30, 37],
+        activeHeads: [0,1,2,3],
+        outputs: ["文本分类", "机器翻译", "问答系统", "文本生成", "摘要", "信息抽取"],
+        pipeline: ["上下文表示", "任务层", "预测结果"]
+      }
+    ];
+
+    let currentStep = 0;
+    let timer = null;
+    let playing = false;
+
+    const stepList = document.getElementById('stepList');
+    const stageTitle = document.getElementById('stageTitle');
+    const stageSubtitle = document.getElementById('stageSubtitle');
+    const wordList = document.getElementById('wordList');
+    const tokenList = document.getElementById('tokenList');
+    const encoderStack = document.getElementById('encoderStack');
+    const attentionGrid = document.getElementById('attentionGrid');
+    const headContainer = document.getElementById('headContainer');
+    const outputList = document.getElementById('outputList');
+    const teacherNote = document.getElementById('teacherNote');
+    const classTip = document.getElementById('classTip');
+    const progressBar = document.getElementById('progressBar');
+    const formulaBox = document.getElementById('formulaBox');
+    const miniPipeline = document.getElementById('miniPipeline');
+
+    function initStatic() {
+      stepList.innerHTML = steps.map((s, i) => `
+        <div class="step-item ${i === 0 ? 'active' : ''}" data-index="${i}">
+          <div class="step-index">STEP ${i + 1}</div>
+          <div class="step-title">${s.title}</div>
+          <div class="step-desc">${s.subtitle}</div>
+        </div>
+      `).join('');
+
+      wordList.innerHTML = words.map((w, i) => `<div class="word" id="word-${i}">${w}</div>`).join('');
+      tokenList.innerHTML = words.map((w, i) => `<div class="token" id="token-${i}" data-sub="${tokenSubs[i]}">向量 ${i + 1}</div>`).join('');
+      encoderStack.innerHTML = layers.map((l, i) => `
+        <div class="layer" id="layer-${i}">
+          <div class="layer-title">${l.title}</div>
+          <div class="layer-text">${l.text}</div>
+          <div class="pulse"></div>
+        </div>
+      `).join('');
+
+      renderAttentionGrid([]);
+      renderHeads([]);
+      renderOutputs([]);
+      renderPipeline([]);
+
+      document.querySelectorAll('.step-item').forEach(item => {
+        item.addEventListener('click', () => {
+          stopAuto();
+          currentStep = Number(item.dataset.index);
+          renderStep();
+        });
+      });
+    }
+
+    function renderAttentionGrid(hotCells) {
+      let html = '<div class="grid-label">Query \\ Key</div>';
+      for (let i = 0; i < words.length; i++) {
+        html += `<div class="grid-label">${words[i]}</div>`;
+      }
+      for (let r = 0; r < words.length; r++) {
+        html += `<div class="grid-label">${words[r]}</div>`;
+        for (let c = 0; c < words.length; c++) {
+          const idx = r * words.length + c;
+          const hot = hotCells.includes(idx) ? 'hot' : '';
+          const val = hot ? (0.55 + ((idx % 5) * 0.08)).toFixed(2) : (0.05 + ((idx % 4) * 0.04)).toFixed(2);
+          html += `<div class="grid-cell ${hot}">${val}</div>`;
+        }
+      }
+      attentionGrid.innerHTML = html;
+    }
+
+    function renderHeads(activeHeads) {
+      const descriptions = [
+        '关注局部语法',
+        '关注长距离依赖',
+        '关注语义相关性',
+        '关注关键词强调'
+      ];
+      headContainer.innerHTML = descriptions.map((d, i) => `
+        <div class="head-box ${activeHeads.includes(i) ? 'active' : ''}">
+          <strong>Head ${i + 1}</strong>
+          <span>${d}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderOutputs(outputs) {
+      outputList.innerHTML = outputs.map((o, i) => `<div class="output-chip active">${o}</div>`).join('');
+    }
+
+    function renderPipeline(items) {
+      miniPipeline.innerHTML = items.map(item => `<span class="mini">${item}</span>`).join('');
+    }
+
+    function clearActiveStates() {
+      words.forEach((_, i) => {
+        document.getElementById(`word-${i}`).classList.remove('active');
+        document.getElementById(`token-${i}`).classList.remove('active');
+      });
+      layers.forEach((_, i) => {
+        document.getElementById(`layer-${i}`).classList.remove('active');
+      });
+      document.querySelectorAll('.step-item').forEach(el => el.classList.remove('active'));
+    }
+
+    function renderStep() {
+      const step = steps[currentStep];
+      clearActiveStates();
+
+      stageTitle.textContent = step.title;
+      stageSubtitle.textContent = step.subtitle;
+      teacherNote.textContent = step.note;
+      classTip.textContent = step.tip;
+      formulaBox.textContent = step.formula;
+      progressBar.style.width = `${((currentStep + 1) / steps.length) * 100}%`;
+
+      step.activeWords.forEach(i => document.getElementById(`word-${i}`).classList.add('active'));
+      step.activeTokens.forEach(i => document.getElementById(`token-${i}`).classList.add('active'));
+      step.activeLayers.forEach(i => document.getElementById(`layer-${i}`).classList.add('active'));
+      document.querySelector(`.step-item[data-index="${currentStep}"]`).classList.add('active');
+
+      renderAttentionGrid(step.hotCells);
+      renderHeads(step.activeHeads);
+      renderOutputs(step.outputs);
+      renderPipeline(step.pipeline);
+    }
+
+    function nextStep() {
+      currentStep = (currentStep + 1) % steps.length;
+      renderStep();
+    }
+
+    function prevStep() {
+      currentStep = (currentStep - 1 + steps.length) % steps.length;
+      renderStep();
+    }
+
+    function startAuto() {
+      if (playing) return;
+      playing = true;
+      document.getElementById('playBtn').textContent = '暂停播放';
+      timer = setInterval(() => {
+        if (currentStep === steps.length - 1) {
+          currentStep = 0;
+        } else {
+          currentStep += 1;
+        }
+        renderStep();
+      }, 4200);
+    }
+
+    function stopAuto() {
+      playing = false;
+      document.getElementById('playBtn').textContent = '自动播放';
+      clearInterval(timer);
+    }
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      stopAuto();
+      nextStep();
+    });
+
+    document.getElementById('prevBtn').addEventListener('click', () => {
+      stopAuto();
+      prevStep();
+    });
+
+    document.getElementById('playBtn').addEventListener('click', () => {
+      if (playing) stopAuto();
+      else startAuto();
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      stopAuto();
+      currentStep = 0;
+      renderStep();
+    });
+
+    initStatic();
+    renderStep();
+  </script>
+</body>
+</html>

@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transformer 互动答题</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: rgba(255,255,255,0.06);
+      --panel-border: rgba(255,255,255,0.1);
+      --text: #eef3ff;
+      --muted: #a9b6df;
+      --primary: #5b8cff;
+      --primary-2: #41c7ff;
+      --success: #32c48d;
+      --danger: #ff6b6b;
+      --warning: #ffd166;
+      --shadow: 0 10px 30px rgba(0,0,0,0.25);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      background: radial-gradient(circle at top, #182656 0%, #0b1020 60%);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.3fr 0.7fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(6px);
+    }
+
+    .hero-card, .status-card, .question-card, .side-card, .result-card {
+      padding: 20px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 34px;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 15px;
+    }
+
+    .tag-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(91,140,255,0.16);
+      border: 1px solid rgba(91,140,255,0.35);
+      font-size: 13px;
+      color: #dce7ff;
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .status-item {
+      padding: 14px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      text-align: center;
+    }
+
+    .status-item .label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .status-item .value {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .question-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .question-type {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .single { background: rgba(91,140,255,0.15); color: #d8e6ff; }
+    .multiple { background: rgba(255,209,102,0.18); color: #fff0c6; }
+    .judge { background: rgba(50,196,141,0.18); color: #cffbe8; }
+
+    .question-title {
+      font-size: 20px;
+      line-height: 1.7;
+      margin-bottom: 16px;
+      font-weight: 700;
+    }
+
+    .option-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .option {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      cursor: pointer;
+      transition: 0.25s ease;
+    }
+
+    .option:hover {
+      transform: translateY(-2px);
+      border-color: rgba(91,140,255,0.4);
+      background: rgba(91,140,255,0.08);
+    }
+
+    .option input {
+      margin-top: 3px;
+      transform: scale(1.15);
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .option.correct {
+      border-color: rgba(50,196,141,0.7);
+      background: rgba(50,196,141,0.16);
+    }
+
+    .option.wrong {
+      border-color: rgba(255,107,107,0.7);
+      background: rgba(255,107,107,0.14);
+    }
+
+    .option.disabled {
+      cursor: default;
+    }
+
+    .option-label {
+      font-size: 16px;
+      line-height: 1.7;
+      flex: 1;
+    }
+
+    .analysis {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.04);
+      border-left: 4px solid var(--primary);
+      color: var(--muted);
+      line-height: 1.8;
+      display: none;
+      font-size: 14px;
+    }
+
+    .analysis.show {
+      display: block;
+    }
+
+    .question-result {
+      margin-top: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      display: none;
+    }
+
+    .question-result.show { display: block; }
+    .question-result.ok { color: var(--success); }
+    .question-result.no { color: var(--danger); }
+
+    .side-card {
+      position: sticky;
+      top: 18px;
+    }
+
+    .side-card h3 {
+      margin: 0 0 12px;
+      font-size: 20px;
+    }
+
+    .side-card p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 14px;
+    }
+
+    .progress-wrap {
+      width: 100%;
+      height: 12px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 12px 0 16px;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--primary-2));
+      transition: width 0.35s ease;
+    }
+
+    .legend {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .legend-item {
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .action-bar {
+      display: grid;
+      gap: 10px;
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.25s ease;
+      color: white;
+    }
+
+    button:hover { transform: translateY(-1px); }
+
+    .btn-primary { background: linear-gradient(90deg, #4d7fff, #41c7ff); }
+    .btn-success { background: linear-gradient(90deg, #1aa97a, #32c48d); }
+    .btn-ghost { background: rgba(255,255,255,0.1); }
+
+    .result-card {
+      margin-top: 16px;
+      display: none;
+    }
+
+    .result-card.show { display: block; }
+
+    .result-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .result-score {
+      font-size: 44px;
+      font-weight: 800;
+      color: var(--warning);
+    }
+
+    .result-summary {
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 15px;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .mini-box {
+      padding: 14px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      text-align: center;
+    }
+
+    .mini-box .label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .mini-box .value {
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 980px) {
+      .hero, .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .side-card {
+        position: static;
+      }
+
+      .mini-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .container { padding: 14px; }
+      h1 { font-size: 28px; }
+      .question-title { font-size: 18px; }
+      .option-label { font-size: 15px; }
+      .status-grid, .mini-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <div class="hero-card card">
+        <h1>Transformer 互动答题</h1>
+        <div class="subtitle">
+          题目围绕 Transformer 的基本结构、注意力机制、编码层组成与上下文表示等核心知识点设计，可用于学习检验与知识巩固。
+        </div>
+        <div class="tag-row">
+          <span class="tag">单选题</span>
+          <span class="tag">多选题</span>
+          <span class="tag">判断题</span>
+          <span class="tag">自动评分</span>
+          <span class="tag">答案解析</span>
+        </div>
+      </div>
+      <div class="status-card card">
+        <div class="status-grid">
+          <div class="status-item">
+            <div class="label">题目总数</div>
+            <div class="value" id="totalCount">0</div>
+          </div>
+          <div class="status-item">
+            <div class="label">当前完成</div>
+            <div class="value" id="doneCount">0</div>
+          </div>
+          <div class="status-item">
+            <div class="label">单选 / 多选 / 判断</div>
+            <div class="value" id="typeStat">0 / 0 / 0</div>
+          </div>
+          <div class="status-item">
+            <div class="label">满分</div>
+            <div class="value" id="fullScore">100</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="layout">
+      <div>
+        <div class="question-list" id="questionList"></div>
+        <div class="result-card card" id="resultCard">
+          <div class="result-head">
+            <div>
+              <div style="font-size:24px;font-weight:700;margin-bottom:6px;">答题完成</div>
+              <div class="result-summary" id="resultSummary"></div>
+            </div>
+            <div class="result-score" id="resultScore">0</div>
+          </div>
+          <div class="mini-grid">
+            <div class="mini-box">
+              <div class="label">正确题数</div>
+              <div class="value" id="correctCount">0</div>
+            </div>
+            <div class="mini-box">
+              <div class="label">错误题数</div>
+              <div class="value" id="wrongCount">0</div>
+            </div>
+            <div class="mini-box">
+              <div class="label">正确率</div>
+              <div class="value" id="accuracy">0%</div>
+            </div>
+            <div class="mini-box">
+              <div class="label">学习建议</div>
+              <div class="value" id="levelText">-</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="side-card card">
+        <h3>答题说明</h3>
+        <p>请选择你认为正确的答案并提交。完成全部题目后，页面会显示总成绩、正确率与学习建议。</p>
+        <div class="progress-wrap">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="legend">
+          <div class="legend-item">绿色：正确答案或作答正确</div>
+          <div class="legend-item">红色：你的错误选择</div>
+          <div class="legend-item">黄色统计区域：总成绩汇总</div>
+        </div>
+        <div class="action-bar">
+          <button class="btn-primary" id="submitBtn">提交本题</button>
+          <button class="btn-success" id="showAnswerBtn">显示本题答案</button>
+          <button class="btn-ghost" id="resetBtn">重新作答</button>
+        </div>
+      </aside>
+    </section>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        type: 'single',
+        score: 10,
+        title: 'Transformer 模型中，用来显式表示词语先后顺序的信息通常是什么？',
+        options: ['卷积核参数', '位置编码 Positional Encoding', '池化层 Pooling', 'Dropout 掩码'],
+        answer: [1],
+        analysis: 'Transformer 没有像 RNN 那样天然按顺序递归处理序列，因此需要加入位置编码，让模型感知词语所在的位置。'
+      },
+      {
+        type: 'single',
+        score: 10,
+        title: '在自注意力机制中，哪个公式最能体现“根据相关性分配注意力权重”？',
+        options: [
+          'softmax(QK^T / sqrt(d_k))V',
+          'sigmoid(Wx+b)',
+          'max(0, xW_1+b_1)',
+          'y = Wx + b'
+        ],
+        answer: [0],
+        analysis: 'Q 与 K 的点积用于计算相关性，再经过 softmax 归一化得到注意力权重，最后对 V 做加权求和。'
+      },
+      {
+        type: 'multiple',
+        score: 10,
+        title: '关于 Multi-Head Attention，多选题中正确的是哪些？',
+        options: [
+          '不同注意力头可以关注不同类型的关系',
+          '多个头的输出通常会进行拼接再线性变换',
+          '多头注意力的作用只是为了减少参数量',
+          '它有助于模型从多个角度理解上下文'
+        ],
+        answer: [0, 1, 3],
+        analysis: '多头注意力的核心价值是并行地从不同角度建模上下文关系，而不是单纯为了减少参数。'
+      },
+      {
+        type: 'judge',
+        score: 10,
+        title: '判断题：Transformer 的每个词在编码时只能看到它左边已经出现过的词。',
+        options: ['正确', '错误'],
+        answer: [1],
+        analysis: '在标准编码器的自注意力中，一个词通常可以看到整个输入句子中的其他词，而不是只能看左侧。'
+      },
+      {
+        type: 'multiple',
+        score: 10,
+        title: '以下哪些属于 Transformer 编码层中常见的组成部分？',
+        options: ['多头自注意力', '前馈神经网络', 'Add & Norm', '最大池化层'],
+        answer: [0, 1, 2],
+        analysis: '典型的 Transformer 编码层一般由多头自注意力、残差连接与归一化、前馈网络等模块组成。'
+      },
+      {
+        type: 'single',
+        score: 10,
+        title: '如果一句话中“学习”这个词对“Transformer”赋予了更高注意力权重，这最能说明什么？',
+        options: [
+          '模型判断两者在当前语境下关系更紧密',
+          '说明“学习”一定是句子主语',
+          '表示位置编码失效了',
+          '表示模型只会关注相邻词'
+        ],
+        answer: [0],
+        analysis: '注意力权重高通常表示在当前任务或语境下，模型认为两个词之间的信息联系更重要。'
+      },
+      {
+        type: 'judge',
+        score: 10,
+        title: '判断题：相比传统 RNN，Transformer 更适合并行计算。',
+        options: ['正确', '错误'],
+        answer: [0],
+        analysis: 'Transformer 不依赖按时间步递归传递隐藏状态，因此更适合并行训练，这也是它广泛成功的重要原因之一。'
+      },
+      {
+        type: 'multiple',
+        score: 10,
+        title: 'Transformer 编码后的上下文表示可以直接用于哪些任务？',
+        options: ['文本分类', '机器翻译', '问答系统', '文本生成'],
+        answer: [0, 1, 2, 3],
+        analysis: 'Transformer 的上下文表示非常通用，可以接不同任务头，用于分类、翻译、生成、问答等多种 NLP 任务。'
+      },
+      {
+        type: 'single',
+        score: 10,
+        title: '前馈网络 FFN 在 Transformer 中的主要作用更接近下面哪项？',
+        options: [
+          '对每个位置的表示做进一步非线性变换',
+          '负责分词',
+          '替代位置编码',
+          '只用于减少输入长度'
+        ],
+        answer: [0],
+        analysis: '前馈网络通常对每个位置独立地进行非线性映射，进一步提升特征表达能力。'
+      },
+      {
+        type: 'judge',
+        score: 10,
+        title: '判断题：在缩放点积注意力中，QK^T 后除以 sqrt(d_k) 的主要目的是让数值更稳定。',
+        options: ['正确', '错误'],
+        answer: [0],
+        analysis: '当向量维度较大时，点积结果可能变得过大，导致 softmax 进入过于陡峭的区域。除以 sqrt(d_k) 有助于稳定训练过程。'
+      }
+    ];
+
+    const questionList = document.getElementById('questionList');
+    const totalCount = document.getElementById('totalCount');
+    const doneCount = document.getElementById('doneCount');
+    const typeStat = document.getElementById('typeStat');
+    const fullScore = document.getElementById('fullScore');
+    const progressBar = document.getElementById('progressBar');
+    const resultCard = document.getElementById('resultCard');
+    const resultScore = document.getElementById('resultScore');
+    const resultSummary = document.getElementById('resultSummary');
+    const correctCount = document.getElementById('correctCount');
+    const wrongCount = document.getElementById('wrongCount');
+    const accuracy = document.getElementById('accuracy');
+    const levelText = document.getElementById('levelText');
+    const submitBtn = document.getElementById('submitBtn');
+    const showAnswerBtn = document.getElementById('showAnswerBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    let currentIndex = 0;
+    let answeredCount = 0;
+    let totalScore = 0;
+    let correctNum = 0;
+    let currentLocked = false;
+    const userAnswers = Array.from({ length: questions.length }, () => []);
+
+    function getTypeText(type) {
+      if (type === 'single') return '单选题';
+      if (type === 'multiple') return '多选题';
+      return '判断题';
+    }
+
+    function getTypeClass(type) {
+      if (type === 'single') return 'single';
+      if (type === 'multiple') return 'multiple';
+      return 'judge';
+    }
+
+    function updateHeaderStats() {
+      totalCount.textContent = questions.length;
+      const singleCount = questions.filter(q => q.type === 'single').length;
+      const multipleCount = questions.filter(q => q.type === 'multiple').length;
+      const judgeCount = questions.filter(q => q.type === 'judge').length;
+      typeStat.textContent = `${singleCount} / ${multipleCount} / ${judgeCount}`;
+      fullScore.textContent = questions.reduce((sum, q) => sum + q.score, 0);
+    }
+
+    function updateProgress() {
+      doneCount.textContent = answeredCount;
+      progressBar.style.width = `${(answeredCount / questions.length) * 100}%`;
+    }
+
+    function isSameArray(a, b) {
+      if (a.length !== b.length) return false;
+      return a.every((v, i) => v === b[i]);
+    }
+
+    function getSelectedAnswers() {
+      const inputs = [...document.querySelectorAll('#questionList input')];
+      return inputs.filter(i => i.checked).map(i => Number(i.value)).sort((a, b) => a - b);
+    }
+
+    function renderCurrentQuestion() {
+      if (currentIndex >= questions.length) {
+        questionList.innerHTML = '';
+        submitBtn.disabled = true;
+        showAnswerBtn.disabled = true;
+        resultCard.classList.add('show');
+        updateProgress();
+        return;
+      }
+
+      const q = questions[currentIndex];
+      const typeClass = getTypeClass(q.type);
+      const inputType = q.type === 'multiple' ? 'checkbox' : 'radio';
+      const savedAnswer = userAnswers[currentIndex];
+
+      questionList.innerHTML = `
+        <section class="question-card card" data-question-index="${currentIndex}">
+          <div class="question-type ${typeClass}">${getTypeText(q.type)} · ${q.score} 分 · 第 ${currentIndex + 1} / ${questions.length} 题</div>
+          <div class="question-title">${currentIndex + 1}. ${q.title}</div>
+          <div class="option-list">
+            ${q.options.map((opt, oIndex) => `
+              <label class="option" data-option-index="${oIndex}">
+                <input type="${inputType}" name="question_${currentIndex}" value="${oIndex}" ${savedAnswer.includes(oIndex) ? 'checked' : ''} />
+                <div class="option-label">${String.fromCharCode(65 + oIndex)}. ${opt}</div>
+              </label>
+            `).join('')}
+          </div>
+          <div class="question-result" id="result_current"></div>
+          <div class="analysis" id="analysis_current"><strong>解析：</strong>${q.analysis}</div>
+        </section>
+      `;
+
+      currentLocked = false;
+      submitBtn.disabled = false;
+      showAnswerBtn.disabled = false;
+      submitBtn.textContent = q.type === 'multiple' ? '提交本题' : '确认并下一题';
+      showAnswerBtn.textContent = '显示本题答案';
+
+      bindQuestionEvents();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function bindQuestionEvents() {
+      const inputs = [...document.querySelectorAll('#questionList input')];
+      inputs.forEach(input => {
+        input.addEventListener('change', () => {
+          userAnswers[currentIndex] = getSelectedAnswers();
+        });
+      });
+    }
+
+    function lockCurrentInputs() {
+      document.querySelectorAll('#questionList input').forEach(input => input.disabled = true);
+      document.querySelectorAll('#questionList .option').forEach(el => el.classList.add('disabled'));
+      currentLocked = true;
+    }
+
+    function paintAnswers(selected, answer, showOnlyAnswer = false) {
+      const options = [...document.querySelectorAll('#questionList .option')];
+      options.forEach((optionEl, idx) => {
+        optionEl.classList.remove('correct', 'wrong');
+        if (answer.includes(idx)) optionEl.classList.add('correct');
+        if (!showOnlyAnswer && selected.includes(idx) && !answer.includes(idx)) {
+          optionEl.classList.add('wrong');
+        }
+      });
+    }
+
+    function goNextAfterDelay() {
+      setTimeout(() => {
+        currentIndex += 1;
+        renderCurrentQuestion();
+      }, 900);
+    }
+
+    function submitCurrentQuestion() {
+      if (currentLocked || currentIndex >= questions.length) return;
+
+      const q = questions[currentIndex];
+      const selected = getSelectedAnswers();
+      if (selected.length === 0) {
+        alert('请先作答，再进入下一题。');
+        return;
+      }
+
+      const answer = [...q.answer].sort((a, b) => a - b);
+      const isCorrect = isSameArray(selected, answer);
+      const resultEl = document.getElementById('result_current');
+      const analysisEl = document.getElementById('analysis_current');
+
+      userAnswers[currentIndex] = selected;
+      paintAnswers(selected, answer, false);
+      lockCurrentInputs();
+      analysisEl.classList.add('show');
+      resultEl.classList.add('show');
+
+      if (isCorrect) {
+        totalScore += q.score;
+        correctNum += 1;
+        resultEl.textContent = `本题回答正确，得 ${q.score} 分。即将进入下一题。`;
+        resultEl.className = 'question-result show ok';
+      } else {
+        resultEl.textContent = `本题回答错误，正确答案为：${answer.map(i => String.fromCharCode(65 + i)).join('、')}。即将进入下一题。`;
+        resultEl.className = 'question-result show no';
+      }
+
+      answeredCount += 1;
+      updateProgress();
+      updateFinalResult();
+      goNextAfterDelay();
+    }
+
+    function showCurrentAnswer() {
+      if (currentLocked || currentIndex >= questions.length) return;
+
+      const q = questions[currentIndex];
+      const answer = [...q.answer].sort((a, b) => a - b);
+      const resultEl = document.getElementById('result_current');
+      const analysisEl = document.getElementById('analysis_current');
+
+      paintAnswers([], answer, true);
+      lockCurrentInputs();
+      analysisEl.classList.add('show');
+      resultEl.textContent = `正确答案为：${answer.map(i => String.fromCharCode(65 + i)).join('、')}。即将进入下一题。`;
+      resultEl.className = 'question-result show ok';
+
+      userAnswers[currentIndex] = answer;
+      answeredCount += 1;
+      updateProgress();
+      updateFinalResult();
+      goNextAfterDelay();
+    }
+
+    function updateFinalResult() {
+      const wrong = answeredCount - correctNum;
+      const percent = answeredCount === 0 ? 0 : Math.round((correctNum / questions.length) * 100);
+      let advice = '继续努力';
+      if (percent === 100) advice = '掌握优秀';
+      else if (percent >= 80) advice = '掌握良好';
+      else if (percent >= 60) advice = '基本掌握';
+
+      resultScore.textContent = totalScore;
+      resultSummary.textContent = `你已完成 ${answeredCount} / ${questions.length} 题，目前答对 ${correctNum} 题，答错 ${wrong} 题。全部完成后可在这里查看最终成绩。`;
+      correctCount.textContent = correctNum;
+      wrongCount.textContent = wrong;
+      accuracy.textContent = `${percent}%`;
+      levelText.textContent = advice;
+    }
+
+    function resetAll() {
+      currentIndex = 0;
+      answeredCount = 0;
+      totalScore = 0;
+      correctNum = 0;
+      currentLocked = false;
+
+      for (let i = 0; i < userAnswers.length; i++) {
+        userAnswers[i] = [];
+      }
+
+      resultCard.classList.remove('show');
+      resultScore.textContent = '0';
+      resultSummary.textContent = '';
+      correctCount.textContent = '0';
+      wrongCount.textContent = '0';
+      accuracy.textContent = '0%';
+      levelText.textContent = '-';
+      submitBtn.disabled = false;
+      showAnswerBtn.disabled = false;
+      updateProgress();
+      renderCurrentQuestion();
+    }
+
+    submitBtn.addEventListener('click', submitCurrentQuestion);
+    showAnswerBtn.addEventListener('click', showCurrentAnswer);
+    resetBtn.addEventListener('click', resetAll);
+
+    updateHeaderStats();
+    updateProgress();
+    renderCurrentQuestion();
+  </script>
+</body>
+</html>
