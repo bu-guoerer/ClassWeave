@@ -13,3 +13,4 @@ app.use(router)
 app.mount('#app')
 
 import './assets/icons/iconfont/iconfont.css'
+import './assets/icons/iconfont/iconfont.js'

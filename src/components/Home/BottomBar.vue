@@ -14,7 +14,7 @@
           <div class="footer-col">
             <h4>集成服务</h4>
             <div class="footer-links">
-              <a href="#">DeepSeek</a>
+              <a href="#">千问大模型</a>
             </div>
           </div>
 

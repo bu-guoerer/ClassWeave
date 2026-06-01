@@ -215,6 +215,25 @@
       </section>
     </div>
 
+    <!-- 底部用户信息 -->
+    <div class="sidebar-footer" v-show="isOpen">
+      <div class="user-info-bar">
+        <div class="user-avatar-mini teacher-avatar">
+          <svg viewBox="0 0 32 32" width="32" height="32">
+            <circle cx="16" cy="16" r="16" fill="#2563eb"/>
+            <text x="16" y="21.5" text-anchor="middle" fill="#fff" font-size="15" font-weight="700" font-family="system-ui, -apple-system, sans-serif">教</text>
+          </svg>
+        </div>
+        <div class="user-name-area">
+          <span class="user-name-text">教师用户</span>
+          <span class="user-badge">Pro</span>
+        </div>
+        <svg class="dropdown-arrow" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </div>
+    </div>
+
     <Teleport to="body">
       <div v-if="deleteConfirmItem" class="delete-dialog-mask" @click="closeDeleteDialog">
         <div class="delete-dialog-card" @click.stop>
@@ -483,7 +502,7 @@ const goToLigong = () => {
   display: flex;
   flex-direction: column;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  height: 100vh;
+  height: 100%;
 }
 
 .sidebar-container.is-collapsed {
@@ -687,9 +706,76 @@ const goToLigong = () => {
 }
 
 .sidebar-footer {
-  padding: 16px;
+  padding: 12px 16px;
   border-top: 1px solid #f5f5f5;
+}
+
+.user-info-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
   cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.user-info-bar:hover {
+  background: #f5f5f5;
+}
+
+.user-avatar-mini {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #e6f0ff;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-avatar-mini img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.teacher-avatar {
+  background: transparent;
+}
+
+.user-name-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.user-name-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  background: #000;
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.dropdown-arrow {
+  color: #999;
+  flex-shrink: 0;
 }
 
 .user-profile {

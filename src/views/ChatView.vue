@@ -17,8 +17,8 @@
       @delete-course-design="handleDeleteCourseDesign"
     />
 
-    <div class="chat-main-area">
-      <div ref="chatListRef" class="chat-messages" @scroll="handleChatScroll">
+    <div :class="['chat-main-area', { 'is-welcome': isWelcomeMode }]">
+      <div v-show="!isWelcomeMode" ref="chatListRef" class="chat-messages" @scroll="handleChatScroll">
         <div
           v-for="(msg, index) in messages"
           :key="`${msg.type}-${index}`"
@@ -371,7 +371,11 @@
         </div>
       </div>
 
-      <div class="chat-input-area">
+      <div v-if="isWelcomeMode" class="welcome-brand-wrapper">
+        <h1 class="welcome-brand">ClassWeave 织课</h1>
+      </div>
+
+      <div :class="['chat-input-area', { 'is-welcome': isWelcomeMode }]">
         <div :class="['input-wrapper', { 'is-recording': isListening }]">
           <div class="quoted-box" v-if="quotedLessonData">
             <div class="quote-content">
@@ -440,8 +444,11 @@
                 style="display: none"
                 @change="handleFileSelect"
               />
-              <button class="tool-btn" title="文件上传" @click="triggerFileInput">
-                <span class="tool-btn__icon" aria-hidden="true">📁</span>
+              <button class="tool-btn" @click="triggerFileInput">
+                <svg class="tool-btn__svg" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 4a2 2 0 0 1 2-2h4.586a2 2 0 0 1 1.414.586l2.828 2.828A2 2 0 0 1 16 6.828V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M12 2v4a2 2 0 0 0 2 2h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
                 <span class="tool-btn__label">文件上传</span>
               </button>
               <button
@@ -449,7 +456,6 @@
                 :disabled="isRecordingBusy"
                 :aria-busy="isRecordingBusy ? 'true' : 'false'"
                 :aria-pressed="isListening ? 'true' : 'false'"
-                title="语音输入"
                 @click="toggleListening"
               >
                 <svg class="tool-btn__svg" viewBox="0 0 24 24" aria-hidden="true">
@@ -462,6 +468,46 @@
               </button>
             </div>
             <button class="send-btn" :disabled="sendDisabled" @click="handleSend">发送</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 欢迎模式下的介绍信息 -->
+      <div v-if="isWelcomeMode" class="welcome-intro-area">
+        <div class="intro-cards">
+          <div class="intro-card" @click="fillSuggestion('帮我设计一门人工智能导论课程')">
+            <div class="intro-icon">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              </svg>
+            </div>
+            <div class="intro-title">智能课程设计</div>
+            <div class="intro-desc">输入课程主题，AI 自动规划教学大纲与课时安排</div>
+          </div>
+          <div class="intro-card" @click="fillSuggestion('根据这份PDF生成PPT')">
+            <div class="intro-icon">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <div class="intro-title">资料上传生成</div>
+            <div class="intro-desc">上传 PDF、音频等资料，AI 提炼内容生成课件</div>
+          </div>
+          <div class="intro-card" @click="fillSuggestion('帮我优化这节课的课件')">
+            <div class="intro-icon">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M12 1v6m0 6v10"/>
+                <path d="M21 12h-6m-6 0H1"/>
+                <path d="M19.07 4.93L14.83 9.17M9.17 14.83l-4.24 4.24"/>
+                <path d="M19.07 19.07L14.83 14.83M9.17 9.17L4.93 4.93"/>
+              </svg>
+            </div>
+            <div class="intro-title">课件智能优化</div>
+            <div class="intro-desc">基于现有课件，AI 辅助优化内容与教学设计</div>
           </div>
         </div>
       </div>
@@ -826,6 +872,11 @@ const sendDisabled = computed(() => {
     return !hasPrompt
   }
   return !hasPrompt && !hasAttachments
+})
+
+const isWelcomeMode = computed(() => {
+  // 欢迎模式：没有任何用户发送的消息
+  return !messages.value.some((msg) => msg.role === 'user')
 })
 
 const progressLabels = ['分析资料', '规划结构', '生成初版', '导出结果']
@@ -4110,11 +4161,27 @@ function loadConversations() {
   restoreConversation(target)
 }
 
+const isCreatingNewChat = ref(false)
+
 function startNewChat() {
+  if (isCreatingNewChat.value) return
+  isCreatingNewChat.value = true
+
+  // 如果当前已经是空对话，不再重复创建
+  const current = historyList.value.find((item) => item.id === activeConversationId.value)
+  if (current && isGreetingOnlyConversation(current.messagesData)) {
+    isCreatingNewChat.value = false
+    return
+  }
+
   const conversation = createConversation()
   historyList.value = [conversation, ...historyList.value]
   restoreConversation(conversation)
   persistHistory()
+
+  setTimeout(() => {
+    isCreatingNewChat.value = false
+  }, 300)
 }
 
 function handleLoadHistory(item) {
@@ -5652,6 +5719,175 @@ onBeforeUnmount(() => {
   overflow: hidden;
 }
 
+/* 欢迎模式样式 */
+.chat-main-area.is-welcome {
+  justify-content: center;
+  align-items: center;
+  padding: 0 24px;
+}
+
+.welcome-brand-wrapper {
+  margin-bottom: 48px;
+  text-align: center;
+}
+
+.welcome-brand {
+  font-size: 48px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin: 0;
+  line-height: 1.1;
+  background: linear-gradient(
+    135deg,
+    #dbeafe 0%,
+    #93c5fd 20%,
+    #60a5fa 40%,
+    #38bdf8 60%,
+    #7dd3fc 80%,
+    #e0f2fe 100%
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: starrySky 12s ease-in-out infinite;
+}
+
+@keyframes starrySky {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.chat-input-area.is-welcome {
+  position: relative;
+  background: none;
+  padding: 0;
+  width: 100%;
+  max-width: 840px;
+}
+
+.chat-input-area.is-welcome .input-wrapper {
+  border-radius: 24px;
+  padding: 14px 18px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04), 0 4px 20px rgba(0, 0, 0, 0.03);
+  border-color: transparent;
+  background: #fff;
+  transition: box-shadow 0.3s ease;
+}
+
+.chat-input-area.is-welcome .input-wrapper:focus-within {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06), 0 8px 28px rgba(0, 0, 0, 0.05);
+}
+
+.chat-input-area.is-welcome .input-wrapper textarea {
+  min-height: 28px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.chat-input-area.is-welcome .input-wrapper textarea::placeholder {
+  color: #b0b3b8;
+}
+
+.chat-input-area.is-welcome .input-toolbar {
+  margin-top: 10px;
+}
+
+/* 欢迎模式下工具按钮更轻量 */
+.chat-input-area.is-welcome .tool-btn {
+  background: transparent;
+  color: #5f6368;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 999px;
+}
+
+.chat-input-area.is-welcome .tool-btn:hover {
+  background: #f5f5f5;
+  color: #000;
+}
+
+/* 欢迎模式下发送按钮更克制 */
+.chat-input-area.is-welcome .send-btn {
+  border-radius: 999px;
+  padding: 9px 24px;
+  min-width: auto;
+  box-shadow: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.chat-input-area.is-welcome .send-btn:disabled {
+  background: #e5e5e5;
+  color: #aaa;
+  opacity: 1;
+}
+
+/* 欢迎模式介绍卡片 */
+.welcome-intro-area {
+  margin-top: 40px;
+  width: 100%;
+  max-width: 840px;
+}
+
+.intro-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.intro-card {
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid #f0f0f0;
+  background: #fafafa;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.intro-card:hover {
+  background: #fff;
+  border-color: #e0e0e0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+}
+
+.intro-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #eef5ff;
+  color: #1677ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.intro-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1f2d3d;
+  margin-bottom: 6px;
+}
+
+.intro-desc {
+  font-size: 13px;
+  color: #8c959f;
+  line-height: 1.6;
+}
+
+@media (max-width: 760px) {
+  .intro-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
 .typewriter-text {
   font-size: 14px;
   line-height: 1.75;
@@ -5736,5 +5972,12 @@ onBeforeUnmount(() => {
   50% {
     opacity: 1;
   }
+}
+
+/* 欢迎模式样式 */
+.chat-main-area.is-welcome {
+  justify-content: center;
+  align-items: center;
+  padding: 0 24px;
 }
 </style>
