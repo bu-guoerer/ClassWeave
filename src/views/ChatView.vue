@@ -371,9 +371,11 @@
         </div>
       </div>
 
-      <div v-if="isWelcomeMode" class="welcome-brand-wrapper">
-        <h1 class="welcome-brand">ClassWeave 织课</h1>
-      </div>
+      <Transition name="welcome-fade">
+        <div v-show="isWelcomeMode" class="welcome-brand-wrapper">
+          <h1 class="welcome-brand">ClassWeave 织课</h1>
+        </div>
+      </Transition>
 
       <div :class="['chat-input-area', { 'is-welcome': isWelcomeMode }]">
         <div :class="['input-wrapper', { 'is-recording': isListening }]">
@@ -418,23 +420,6 @@
             @keydown.enter.prevent="handleSend"
           />
 
-          <div
-            v-if="isListening || voiceInterimTranscript"
-            class="voice-recognition-status"
-            aria-live="polite"
-          >
-            <div class="voice-wave" aria-hidden="true">
-              <span></span>
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-            <span class="voice-status-text">{{ voiceStatusText }}</span>
-            <span v-if="voiceInterimTranscript" class="voice-draft-text">{{
-              voiceInterimTranscript
-            }}</span>
-          </div>
-
           <div class="input-toolbar">
             <div class="toolbar-left">
               <input
@@ -444,7 +429,10 @@
                 style="display: none"
                 @change="handleFileSelect"
               />
-              <button class="tool-btn" @click="triggerFileInput">
+              <button
+                :class="['tool-btn', { 'recording-active': isFileSelecting }]"
+                @click="triggerFileInput"
+              >
                 <svg class="tool-btn__svg" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M4 4a2 2 0 0 1 2-2h4.586a2 2 0 0 1 1.414.586l2.828 2.828A2 2 0 0 1 16 6.828V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="M12 2v4a2 2 0 0 0 2 2h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
@@ -464,7 +452,14 @@
                   <path d="M12 18v3" />
                   <path d="M8.5 21h7" />
                 </svg>
-                <span class="tool-btn__label">{{ isListening ? '停止识别' : '语音输入' }}</span>
+                <span v-if="!isListening" class="tool-btn__label">语音输入</span>
+                <div v-if="isListening" class="mic-wave" aria-hidden="true">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
               </button>
             </div>
             <button class="send-btn" :disabled="sendDisabled" @click="handleSend">发送</button>
@@ -473,7 +468,8 @@
       </div>
 
       <!-- 欢迎模式下的介绍信息 -->
-      <div v-if="isWelcomeMode" class="welcome-intro-area">
+      <Transition name="welcome-fade">
+        <div v-show="isWelcomeMode" class="welcome-intro-area">
         <div class="intro-cards">
           <div class="intro-card" @click="fillSuggestion('帮我设计一门人工智能导论课程')">
             <div class="intro-icon">
@@ -511,6 +507,7 @@
           </div>
         </div>
       </div>
+      </Transition>
     </div>
 
     <template v-if="showPreviewRegion">
@@ -686,6 +683,7 @@ const historyList = ref([])
 const activeConversationId = ref('')
 const isListening = ref(false)
 const isRecordingBusy = ref(false)
+const isFileSelecting = ref(false)
 const voiceInterimTranscript = ref('')
 const voiceStatusText = ref('点击后开始实时识别')
 
@@ -3444,7 +3442,14 @@ async function generateDigitalHuman(actionMessage) {
 
 function triggerFileInput() {
   if (fileInputRef.value) {
+    isFileSelecting.value = true
     fileInputRef.value.click()
+    // 如果用户点击取消，handleFileSelect 不会触发，通过 focus 事件清除状态
+    const onWindowFocus = () => {
+      isFileSelecting.value = false
+      window.removeEventListener('focus', onWindowFocus)
+    }
+    window.addEventListener('focus', onWindowFocus)
   }
 }
 
@@ -3517,6 +3522,7 @@ async function uploadPendingAttachment(file, attachmentType = resolveAttachmentT
 }
 
 async function handleFileSelect(event) {
+  isFileSelecting.value = false
   const input = event.target
   if (!input.files?.length) return
   const file = input.files[0]
@@ -4861,6 +4867,12 @@ onBeforeUnmount(() => {
   transform: translateY(1px) scale(0.985);
 }
 
+.tool-btn:active {
+  background: #e6f4ff;
+  color: #1677ff;
+  box-shadow: 0 0 0 1px rgba(22, 119, 255, 0.18), 0 4px 16px rgba(22, 119, 255, 0.12);
+}
+
 .submit-form-btn:disabled,
 .secondary-btn:disabled,
 .send-btn:disabled {
@@ -5190,63 +5202,6 @@ onBeforeUnmount(() => {
   transition: color 0.2s ease;
 }
 
-.voice-recognition-status {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 36px;
-  margin-top: 10px;
-  padding: 8px 12px;
-  border-radius: 12px;
-  background: #f3f7ff;
-  color: #1f4fd6;
-  font-size: 13px;
-  line-height: 1.4;
-  overflow: hidden;
-}
-
-.voice-wave {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  width: 22px;
-  height: 18px;
-  flex-shrink: 0;
-}
-
-.voice-wave span {
-  width: 3px;
-  height: 8px;
-  border-radius: 999px;
-  background: #1677ff;
-  animation: voice-wave 0.9s ease-in-out infinite;
-}
-
-.voice-wave span:nth-child(2) {
-  animation-delay: 0.12s;
-}
-
-.voice-wave span:nth-child(3) {
-  animation-delay: 0.24s;
-}
-
-.voice-wave span:nth-child(4) {
-  animation-delay: 0.36s;
-}
-
-.voice-status-text {
-  flex-shrink: 0;
-  font-weight: 700;
-}
-
-.voice-draft-text {
-  min-width: 0;
-  color: #44546a;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .input-wrapper.is-recording {
   border-color: rgba(22, 119, 255, 0.4);
   box-shadow: 0 0 0 5px rgba(22, 119, 255, 0.08);
@@ -5279,19 +5234,64 @@ onBeforeUnmount(() => {
 }
 
 .recording-active {
-  background: #e6f4ff;
-  box-shadow: 0 10px 22px rgba(22, 119, 255, 0.1);
+  background: #e6f4ff !important;
+  color: #1677ff !important;
+  box-shadow: 0 0 0 1px rgba(22, 119, 255, 0.18), 0 4px 16px rgba(22, 119, 255, 0.12);
 }
 
-@keyframes voice-wave {
-  0%,
-  100% {
-    height: 7px;
-    opacity: 0.55;
-  }
+.mic-btn.recording-active {
+  padding: 10px 14px;
+}
 
+.mic-wave {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  width: 28px;
+  height: 18px;
+  pointer-events: none;
+}
+
+.mic-wave span {
+  width: 3px;
+  border-radius: 999px;
+  background: #1677ff;
+  animation: mic-wave-bar 0.9s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.mic-wave span:nth-child(1) {
+  height: 10px;
+  animation-delay: 0s;
+}
+
+.mic-wave span:nth-child(2) {
+  height: 16px;
+  animation-delay: 0.15s;
+}
+
+.mic-wave span:nth-child(3) {
+  height: 12px;
+  animation-delay: 0.3s;
+}
+
+.mic-wave span:nth-child(4) {
+  height: 18px;
+  animation-delay: 0.1s;
+}
+
+.mic-wave span:nth-child(5) {
+  height: 8px;
+  animation-delay: 0.25s;
+}
+
+@keyframes mic-wave-bar {
+  0%, 100% {
+    transform: scaleY(0.5);
+    opacity: 0.5;
+  }
   50% {
-    height: 18px;
+    transform: scaleY(1);
     opacity: 1;
   }
 }
@@ -5826,6 +5826,18 @@ onBeforeUnmount(() => {
   background: #e5e5e5;
   color: #aaa;
   opacity: 1;
+}
+
+/* 欢迎模式过渡动画 */
+.welcome-fade-enter-active,
+.welcome-fade-leave-active {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.welcome-fade-enter-from,
+.welcome-fade-leave-to {
+  opacity: 0;
+  transform: translateY(12px);
 }
 
 /* 欢迎模式介绍卡片 */

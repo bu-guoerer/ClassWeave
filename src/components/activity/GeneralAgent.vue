@@ -46,7 +46,7 @@
     <!-- 右侧面板：固定高度，内部滚动，展示智能体信息 -->
     <div class="document-panel" ref="documentPanel">
       <div class="doc-content">
-        <h3>🤖 通用智能体 · 功能介绍</h3>
+        <h3><i class="iconfont icon-zhinengti title-icon"></i> 通用智能体 · 功能介绍</h3>
 
         <h4>✨ 核心能力</h4>
         <p>
@@ -425,6 +425,13 @@ defineExpose({ resetAndPlay })
   color: #2c3e50;
   border-bottom: 2px solid #f0f2f5;
   padding-bottom: 8px;
+}
+
+.title-icon {
+  font-size: 22px;
+  color: #3498db;
+  margin-right: 4px;
+  vertical-align: middle;
 }
 
 .doc-content h4 {

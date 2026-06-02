@@ -46,7 +46,7 @@
     <!-- 右侧数据分析面板（独立滚动） -->
     <div class="document-panel">
       <div class="doc-content">
-        <h3>📊 教学数据分析 · 班级概览</h3>
+        <h3><i class="iconfont icon-tubiao title-icon"></i> 教学数据分析 · 班级概览</h3>
 
         <!-- 统计卡片 -->
         <div class="stats-grid">
@@ -526,6 +526,13 @@ defineExpose({ resetAndPlay })
   color: #2c3e50;
   border-bottom: 2px solid #f0f2f5;
   padding-bottom: 8px;
+}
+
+.title-icon {
+  font-size: 22px;
+  color: #3498db;
+  margin-right: 4px;
+  vertical-align: middle;
 }
 
 .doc-content h4 {

@@ -18,7 +18,7 @@
             <!-- 如果该消息需要显示文件附件，则在气泡下方显示 -->
             <div v-if="msg.fileAttachment" class="file-attachment">
               <div class="file-card">
-                <span class="file-icon">📽️</span>
+                <i class="iconfont icon-huandengpianicon file-icon"></i>
                 <span class="file-name">沁园春长沙.pptx</span>
                 <span class="file-size">(2.3 MB)</span>
                 <span class="download-icon" title="下载文件">⬇️</span>
@@ -51,7 +51,7 @@
     <!-- 右侧面板：PPT大纲缩略图(左) + 大图预览(右) - 优化滚动条分离 -->
     <div class="document-panel">
       <div class="doc-content">
-        <h3>📽️ 幻灯片预览 · 《沁园春·长沙》课件</h3>
+        <h3><i class="iconfont icon-huandengpianicon title-icon"></i> 幻灯片预览 · 《沁园春·长沙》课件</h3>
 
         <!-- 双栏预览布局：两个独立滚动区域 -->
         <div class="preview-layout">
@@ -377,6 +377,14 @@ defineExpose({ resetAndPlay })
 
 .file-icon {
   font-size: 20px;
+  color: #3498db;
+}
+
+.title-icon {
+  font-size: 22px;
+  color: #3498db;
+  margin-right: 4px;
+  vertical-align: middle;
 }
 
 .file-name {

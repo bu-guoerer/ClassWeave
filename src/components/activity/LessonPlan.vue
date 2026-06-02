@@ -33,7 +33,7 @@
                 <!-- 教案摘要卡片组件 -->
                 <div class="lesson-summary">
                   <div class="summary-header">
-                    <span class="file-icon">📄</span>
+                    <i class="iconfont icon-wendang file-icon"></i>
                     <span class="file-name">教案摘要.docx</span>
                     <span class="download-icon">⬇️</span>
                   </div>
@@ -67,7 +67,7 @@
     <!-- 右侧文档预览：固定高度，内部滚动（始终显示教案内容） -->
     <div class="document-panel" ref="documentPanel">
       <div class="doc-content">
-        <h3>🎓 《人工智能导论》教案（大学通识课 · 2学时）</h3>
+        <h3><i class="iconfont icon-wendang title-icon"></i> 《人工智能导论》教案（大学通识课 · 2学时）</h3>
 
         <h4>一、教学目标</h4>
         <p>
@@ -552,6 +552,14 @@ defineExpose({ resetAndPlay })
 
 .summary-header .file-icon {
   font-size: 20px;
+  color: #3498db;
+}
+
+.title-icon {
+  font-size: 22px;
+  color: #3498db;
+  margin-right: 4px;
+  vertical-align: middle;
 }
 
 .summary-header .file-name {
