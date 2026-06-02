@@ -5729,6 +5729,7 @@ onBeforeUnmount(() => {
 .welcome-brand-wrapper {
   margin-bottom: 48px;
   text-align: center;
+  animation: brandFloat 5s ease-in-out 1.2s infinite;
 }
 
 .welcome-brand {
@@ -5750,7 +5751,20 @@ onBeforeUnmount(() => {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: starrySky 12s ease-in-out infinite;
+  opacity: 0;
+  filter: blur(10px);
+  transform: translateY(30px) scale(0.95);
+  animation:
+    brandEnter 1s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    starrySky 12s ease-in-out 1s infinite;
+}
+
+@keyframes brandEnter {
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes starrySky {
@@ -5759,6 +5773,15 @@ onBeforeUnmount(() => {
   }
   50% {
     background-position: 100% 50%;
+  }
+}
+
+@keyframes brandFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
   }
 }
 
