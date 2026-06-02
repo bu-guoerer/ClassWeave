@@ -4812,16 +4812,18 @@ onBeforeUnmount(() => {
 .secondary-btn,
 .artifact-link,
 .tool-btn {
-  background: #eef3ff;
-  color: #1f4fd6;
-  padding: 10px 16px;
+  background: transparent;
+  color: #5f6368;
+  padding: 6px 10px;
 }
 
 .tool-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-weight: 600;
+  font-weight: 500;
+  border-radius: 999px;
+  font-size: 13px;
 }
 
 .tool-btn__icon {
@@ -4856,7 +4858,6 @@ onBeforeUnmount(() => {
 .send-btn:hover,
 .tool-btn:hover {
   transform: translateY(-1px);
-  filter: saturate(1.03);
 }
 
 .submit-form-btn:hover::before,
@@ -5191,13 +5192,17 @@ onBeforeUnmount(() => {
   width: 100%;
   max-width: 860px;
   margin: 0 auto;
-  border: 1px solid #e5ebf5;
-  border-radius: 20px;
-  padding: 14px;
+  border: 1px solid transparent;
+  border-radius: 24px;
+  padding: 14px 18px;
   pointer-events: auto;
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 18px 46px rgba(15, 28, 53, 0.12);
-  backdrop-filter: blur(14px);
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04), 0 4px 20px rgba(0, 0, 0, 0.03);
+  transition: box-shadow 0.3s ease;
+}
+
+.input-wrapper:focus-within {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06), 0 8px 28px rgba(0, 0, 0, 0.05);
 }
 
 .input-wrapper textarea {
@@ -5233,13 +5238,17 @@ onBeforeUnmount(() => {
 .send-btn {
   background: #1677ff;
   color: #fff;
-  padding: 11px 22px;
-  min-width: 92px;
-  box-shadow: 0 10px 22px rgba(22, 119, 255, 0.18);
+  border-radius: 999px;
+  padding: 9px 24px;
+  min-width: auto;
+  box-shadow: none;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .send-btn:hover:not(:disabled) {
-  box-shadow: 0 14px 26px rgba(22, 119, 255, 0.24);
+  box-shadow: none;
+  filter: brightness(1.05);
 }
 
 .recording-active {
@@ -5802,19 +5811,6 @@ onBeforeUnmount(() => {
   max-width: 840px;
 }
 
-.chat-input-area.is-welcome .input-wrapper {
-  border-radius: 24px;
-  padding: 14px 18px;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04), 0 4px 20px rgba(0, 0, 0, 0.03);
-  border-color: transparent;
-  background: #fff;
-  transition: box-shadow 0.3s ease;
-}
-
-.chat-input-area.is-welcome .input-wrapper:focus-within {
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06), 0 8px 28px rgba(0, 0, 0, 0.05);
-}
-
 .chat-input-area.is-welcome .input-wrapper textarea {
   min-height: 28px;
   font-size: 15px;
@@ -5829,32 +5825,7 @@ onBeforeUnmount(() => {
   margin-top: 10px;
 }
 
-/* 欢迎模式下工具按钮更轻量 */
-.chat-input-area.is-welcome .tool-btn {
-  background: transparent;
-  color: #5f6368;
-  padding: 6px 10px;
-  font-size: 13px;
-  font-weight: 500;
-  border-radius: 999px;
-}
-
-.chat-input-area.is-welcome .tool-btn:hover {
-  background: #f5f5f5;
-  color: #000;
-}
-
-/* 欢迎模式下发送按钮更克制 */
-.chat-input-area.is-welcome .send-btn {
-  border-radius: 999px;
-  padding: 9px 24px;
-  min-width: auto;
-  box-shadow: none;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.chat-input-area.is-welcome .send-btn:disabled {
+.send-btn:disabled {
   background: #e5e5e5;
   color: #aaa;
   opacity: 1;
