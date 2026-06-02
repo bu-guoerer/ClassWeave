@@ -3,8 +3,14 @@
     <div class="sidebar-header">
       <div class="logo-area" v-show="isOpen">
         <button class="new-chat-btn" @click="$emit('new-chat')">
-          <span class="plus-icon">＋</span>
+          <span class="plus-icon">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 8v8M8 12h8"/>
+            </svg>
+          </span>
           <span class="btn-text">开启新对话</span>
+          <span class="shortcut-hint">Ctrl B</span>
         </button>
       </div>
       <button class="toggle-btn" @click="$emit('toggle')">
@@ -867,33 +873,56 @@ input:checked + .slider:before {
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: 8px;
-  padding: 12px 16px;
-  box-shadow: 0 2px 8px rgba(22, 119, 255, 0.2);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: bold;
+  padding: 10px 14px;
+  background: #fff;
+  color: #1f2937;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
-  background-color: #1677ff;
+  transition: all 0.25s ease;
 }
 .new-chat-btn:hover {
-  background-color: #4096ff;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(22, 119, 255, 0.3);
+  background: #e6f4ff;
+  border-color: rgba(22, 119, 255, 0.35);
+  color: #1677ff;
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 4px 14px rgba(22, 119, 255, 0.12);
+}
+
+.new-chat-btn:hover .plus-icon {
+  color: #1677ff;
+}
+
+.new-chat-btn:hover .shortcut-hint {
+  background: rgba(22, 119, 255, 0.1);
+  color: #1677ff;
 }
 
 .new-chat-btn:active {
-  transform: translateY(1px);
-  box-shadow: none;
+  background: #dbeafe;
+  border-color: rgba(22, 119, 255, 0.5);
+  transform: scale(0.99);
 }
 
 .plus-icon {
-  font-size: 18px;
-  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #374151;
+}
+
+.shortcut-hint {
+  font-size: 12px;
+  font-weight: 400;
+  color: #9ca3af;
+  background: #f3f4f6;
+  padding: 2px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
 }
 .history-item-wrapper {
   position: relative;

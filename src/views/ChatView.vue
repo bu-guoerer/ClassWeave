@@ -4393,11 +4393,19 @@ watch([sidebarOpen, showPreviewRegion], () => {
   syncPreviewWidthWithinViewport()
 })
 
+function handleKeydown(event) {
+  if ((event.ctrlKey || event.metaKey) && event.key === 'b') {
+    event.preventDefault()
+    startNewChat()
+  }
+}
+
 onMounted(() => {
   loadConversations()
   loadQuotedLessonFromRoute()
   syncPreviewWidthWithinViewport()
   window.addEventListener('resize', syncPreviewWidthWithinViewport)
+  window.addEventListener('keydown', handleKeydown)
   scrollToBottom({ force: true })
 })
 
@@ -4415,6 +4423,7 @@ onBeforeUnmount(() => {
   stopThoughtTypewriter()
   stopThinkingElapsedTimer()
   window.removeEventListener('resize', syncPreviewWidthWithinViewport)
+  window.removeEventListener('keydown', handleKeydown)
 })
 </script>
 
