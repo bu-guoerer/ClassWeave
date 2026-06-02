@@ -13,7 +13,12 @@
             :style="{ animationDelay: `${idx * 0.1}s` }"
           >
             <!-- 用户头像保持原样 -->
-            <div class="avatar" v-if="msg.role === 'user'">👤</div>
+            <div class="avatar" v-if="msg.role === 'user'">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
             <!-- AI 头像使用 ThinkingLogo 组件，静态显示（思考完成态） -->
             <div class="avatar ai-avatar" v-else>
               <ThinkingLogo :is-thinking="false" />
@@ -51,29 +56,56 @@
         <!-- 统计卡片 -->
         <div class="stats-grid">
           <div class="stat-card">
-            <div class="stat-icon">👥</div>
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
             <div class="stat-label">学生总数</div>
             <div class="stat-value">48</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon">📚</div>
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              </svg>
+            </div>
             <div class="stat-label">平均分</div>
             <div class="stat-value">82.5</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon">✅</div>
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
             <div class="stat-label">作业提交率</div>
             <div class="stat-value">94%</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon">💬</div>
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+            </div>
             <div class="stat-label">课堂参与率</div>
             <div class="stat-value">78%</div>
           </div>
         </div>
 
         <!-- 成绩分布柱状图（分布直方图） -->
-        <h4>📈 成绩分布（分数段人数）</h4>
+        <h4>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: text-bottom; margin-right: 4px;">
+            <line x1="12" y1="20" x2="12" y2="10"/>
+            <line x1="18" y1="20" x2="18" y2="4"/>
+            <line x1="6" y1="20" x2="6" y2="16"/>
+          </svg>
+          成绩分布（分数段人数）
+        </h4>
         <div class="chart-container">
           <div class="bar-item" v-for="(item, index) in gradeDistribution" :key="index">
             <span class="bar-label">{{ item.range }}</span>
@@ -85,7 +117,13 @@
         </div>
 
         <!-- 新增：学生等级占比饼状图 -->
-        <h4>🥧 学生等级占比</h4>
+        <h4>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: text-bottom; margin-right: 4px;">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 2a10 10 0 0 1 10 10"/>
+          </svg>
+          学生等级占比
+        </h4>
         <div class="pie-container">
           <div class="pie-chart" :style="{ background: pieConicGradient }"></div>
           <div class="pie-legend">
@@ -98,7 +136,13 @@
         </div>
 
         <!-- 最近五次作业平均分趋势（折线图） -->
-        <h4>📉 近五次作业平均分趋势</h4>
+        <h4>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: text-bottom; margin-right: 4px;">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+            <polyline points="17 6 23 6 23 12"/>
+          </svg>
+          近五次作业平均分趋势
+        </h4>
         <div class="trend-container">
           <div class="trend-line">
             <div
@@ -117,17 +161,38 @@
         </div>
 
         <!-- 学生表现列表（前五/后五） -->
-        <h4>🏆 学生表现亮点</h4>
+        <h4>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: text-bottom; margin-right: 4px;">
+            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+            <path d="M4 22h16"/>
+            <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+            <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+            <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+          </svg>
+          学生表现亮点
+        </h4>
         <div class="student-lists">
           <div class="student-list">
-            <div class="list-title">⭐ 前五名</div>
+            <div class="list-title">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: text-bottom; margin-right: 4px;">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+              前五名
+            </div>
             <div v-for="(s, idx) in topStudents" :key="idx" class="student-item">
               <span>{{ s.name }}</span>
               <span class="student-score">{{ s.score }}分</span>
             </div>
           </div>
           <div class="student-list">
-            <div class="list-title">📌 后五名（需关注）</div>
+            <div class="list-title">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: text-bottom; margin-right: 4px;">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+              </svg>
+              后五名（需关注）
+            </div>
             <div v-for="(s, idx) in bottomStudents" :key="idx" class="student-item">
               <span>{{ s.name }}</span>
               <span class="student-score">{{ s.score }}分</span>
@@ -135,7 +200,12 @@
           </div>
         </div>
 
-        <div class="info-note">⚡ 数据为模拟演示，实际接入后可实现实时教学数据分析。</div>
+        <div class="info-note">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: text-bottom; margin-right: 4px;">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          数据为模拟演示，实际接入后可实现实时教学数据分析。
+        </div>
       </div>
     </div>
   </div>
@@ -223,10 +293,10 @@ const bottomStudents = ref([
 
 // 新增饼状图数据：学生等级占比
 const gradeLevels = ref([
-  { label: '优秀 (90分以上)', count: 12, percentage: 25, color: '#2ecc71' },
-  { label: '良好 (80-89分)', count: 18, percentage: 37.5, color: '#3498db' },
-  { label: '及格 (60-79分)', count: 16, percentage: 33.3, color: '#f39c12' },
-  { label: '不及格 (60分以下)', count: 2, percentage: 4.2, color: '#e74c3c' },
+  { label: '优秀 (90分以上)', count: 12, percentage: 25, color: '#3b82f6' },
+  { label: '良好 (80-89分)', count: 18, percentage: 37.5, color: '#60a5fa' },
+  { label: '及格 (60-79分)', count: 16, percentage: 33.3, color: '#93c5fd' },
+  { label: '不及格 (60分以下)', count: 2, percentage: 4.2, color: '#bfdbfe' },
 ])
 
 // 计算饼图的 conic-gradient 背景
@@ -606,7 +676,7 @@ defineExpose({ resetAndPlay })
 
 .bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #3498db, #2ecc71);
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
   border-radius: 12px;
   transition: width 0.3s;
 }
@@ -635,10 +705,10 @@ defineExpose({ resetAndPlay })
   height: 120px;
   border-radius: 50%;
   background: conic-gradient(
-    #2ecc71 0% 25%,
-    #3498db 25% 62.5%,
-    #f39c12 62.5% 95.8%,
-    #e74c3c 95.8% 100%
+    #3b82f6 0% 25%,
+    #60a5fa 25% 62.5%,
+    #93c5fd 62.5% 95.8%,
+    #bfdbfe 95.8% 100%
   );
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
@@ -698,7 +768,7 @@ defineExpose({ resetAndPlay })
   position: absolute;
   width: 12px;
   height: 12px;
-  background-color: #3498db;
+  background-color: #3b82f6;
   border-radius: 50%;
   transform: translateX(-50%);
   cursor: default;
@@ -707,7 +777,7 @@ defineExpose({ resetAndPlay })
 
 .trend-point:hover {
   transform: translateX(-50%) scale(1.5);
-  background-color: #e67e22;
+  background-color: #1e40af;
 }
 
 .trend-point:hover .trend-tooltip {

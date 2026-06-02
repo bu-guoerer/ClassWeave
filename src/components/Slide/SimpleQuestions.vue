@@ -104,7 +104,12 @@ onMounted(() => {
             :style="{ animationDelay: `${idx * 0.1}s` }"
           >
             <!-- 用户头像保持原样 -->
-            <div class="avatar" v-if="msg.role === 'user'">👤</div>
+            <div class="avatar" v-if="msg.role === 'user'">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
             <!-- AI 头像使用 ThinkingLogo 组件，静态显示（思考完成态） -->
             <div class="avatar ai-avatar" v-else>
               <ThinkingLogo :is-thinking="false" />

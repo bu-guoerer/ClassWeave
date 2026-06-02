@@ -14,7 +14,12 @@
               :style="{ animationDelay: `${idx * 0.1}s` }"
             >
               <!-- 用户头像保持原样 -->
-              <div class="avatar" v-if="msg.role === 'user'">👤</div>
+              <div class="avatar" v-if="msg.role === 'user'">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+              </div>
               <!-- AI 头像使用 ThinkingLogo 组件，静态显示（思考完成态） -->
               <div class="avatar ai-avatar" v-else>
                 <ThinkingLogo :is-thinking="false" />
@@ -35,7 +40,13 @@
                   <div class="summary-header">
                     <i class="iconfont icon-wendang file-icon"></i>
                     <span class="file-name">教案摘要.docx</span>
-                    <span class="download-icon">⬇️</span>
+                    <span class="download-icon">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                      </svg>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -71,67 +82,60 @@
 
         <h4>一、教学目标</h4>
         <p>
-          📚
-          <strong>知识目标：</strong
-          >了解人工智能的定义、发展简史及主要研究领域；理解机器学习的基本思想（监督学习、无监督学习）；熟悉AI在图像识别、自然语言处理等领域的典型应用。<br />
-          💡
-          <strong>能力目标：</strong
-          >能够分析生活中AI应用的原理；通过体验式学习，初步建立"数据-模型-预测"的思维框架；能就AI伦理问题展开理性讨论。<br />
-          ❤️ <strong>素养目标：</strong>培养对新兴科技的敏感度与批判性思维，树立科技向善的价值观。
+          <strong>知识目标：</strong>
+          了解人工智能的定义、发展简史及主要研究领域；理解机器学习的基本思想（监督学习、无监督学习）；熟悉AI在图像识别、自然语言处理等领域的典型应用。<br />
+          <strong>能力目标：</strong>
+          能够分析生活中AI应用的原理；通过体验式学习，初步建立"数据-模型-预测"的思维框架；能就AI伦理问题展开理性讨论。<br />
+          <strong>素养目标：</strong>培养对新兴科技的敏感度与批判性思维，树立科技向善的价值观。
         </p>
 
         <h4>二、教学重难点</h4>
         <p>
-          🔴
-          <strong>重点：</strong
-          >机器学习的基本概念（训练、特征、模型）；AI主流应用的社会影响。<br />
-          🔵 <strong>难点：</strong>理解神经网络的黑箱特性；辩证看待AI的机遇与挑战。
+          <strong>重点：</strong>
+          机器学习的基本概念（训练、特征、模型）；AI主流应用的社会影响。<br />
+          <strong>难点：</strong>理解神经网络的黑箱特性；辩证看待AI的机遇与挑战。
         </p>
 
         <h4>三、教学准备</h4>
         <p>
-          📦 教师：多媒体课件（含AI发展时间轴、算法偏见短片）、Teachable
+          教师：多媒体课件（含AI发展时间轴、算法偏见短片）、Teachable
           Machine在线演示链接、分组讨论话题卡。<br />
-          📦 学生：课前阅读一篇关于AlphaGo或ChatGPT的短文章，准备一个自己感兴趣的AI应用案例。
+          学生：课前阅读一篇关于AlphaGo或ChatGPT的短文章，准备一个自己感兴趣的AI应用案例。
         </p>
 
         <h4>四、教学过程（90分钟）</h4>
         <p>
           <strong>1. 导入：图灵测试与AI之源（10分钟）</strong><br />
-          &nbsp;&nbsp;🎥 播放1分钟电影片段《模仿游戏》引出图灵，简述图灵测试。<br />
-          &nbsp;&nbsp;🗣️
-          提问："如果一台机器能让你误以为它是人，它算有智能吗？"学生自由发言，教师总结AI的哲学起点。
+          &nbsp;&nbsp;播放1分钟电影片段《模仿游戏》引出图灵，简述图灵测试。<br />
+          &nbsp;&nbsp;提问："如果一台机器能让你误以为它是人，它算有智能吗？"学生自由发言，教师总结AI的哲学起点。
         </p>
         <p>
           <strong>2. 核心概念：机器学习 ≠ 魔法（20分钟）</strong><br />
-          &nbsp;&nbsp;📊 以"识别猫的照片"为例，讲解传统编程 vs. 机器学习：规则由数据自动发现。<br />
-          &nbsp;&nbsp;📈
-          简单介绍监督学习（带标签的数据）、无监督学习（聚类），避免数学公式，多用类比（如"教小孩认动物"）。<br />
-          &nbsp;&nbsp;💡 强调"数据质量决定模型上限"。
+          &nbsp;&nbsp;以"识别猫的照片"为例，讲解传统编程 vs. 机器学习：规则由数据自动发现。<br />
+          &nbsp;&nbsp;简单介绍监督学习（带标签的数据）、无监督学习（聚类），避免数学公式，多用类比（如"教小孩认动物"）。<br />
+          &nbsp;&nbsp;强调"数据质量决定模型上限"。
         </p>
         <p>
           <strong>3. 案例与体验：让AI动手（25分钟）</strong><br />
-          &nbsp;&nbsp;🖼️ 图像识别案例：展示ImageNet竞赛演变，现场用Teachable
+          &nbsp;&nbsp;图像识别案例：展示ImageNet竞赛演变，现场用Teachable
           Machine训练手势识别（教师快速演示，学生分组在手机/电脑上尝试）。<br />
-          &nbsp;&nbsp;🗣️
-          NLP案例：对比早期ELIZA与现代ChatGPT的对话效果，讨论"理解"与"生成"的区别。<br />
-          &nbsp;&nbsp;👥 学生分享自己准备的AI应用，教师简要点评。
+          &nbsp;&nbsp;NLP案例：对比早期ELIZA与现代ChatGPT的对话效果，讨论"理解"与"生成"的区别。<br />
+          &nbsp;&nbsp;学生分享自己准备的AI应用，教师简要点评。
         </p>
         <p>
           <strong>4. 深度思辨：AI伦理圆桌（20分钟）</strong><br />
-          &nbsp;&nbsp;⚖️ 播放3分钟短片《算法偏见：当AI学会歧视》。<br />
-          &nbsp;&nbsp;💬 分组讨论（每桌一个议题）：<br />
+          &nbsp;&nbsp;播放3分钟短片《算法偏见：当AI学会歧视》。<br />
+          &nbsp;&nbsp;分组讨论（每桌一个议题）：<br />
           &nbsp;&nbsp;&nbsp;&nbsp;· 议题1：自动驾驶的"电车难题"该由谁决定？<br />
           &nbsp;&nbsp;&nbsp;&nbsp;· 议题2：AI生成的内容，版权归谁？<br />
           &nbsp;&nbsp;&nbsp;&nbsp;· 议题3：人脸识别应否在公共场所禁用？<br />
-          &nbsp;&nbsp;🎤 每组派代表发言，教师引导总结：技术中立，但使用需要伦理边界。
+          &nbsp;&nbsp;每组派代表发言，教师引导总结：技术中立，但使用需要伦理边界。
         </p>
         <p>
           <strong>5. 课程总结与延伸（10分钟）</strong><br />
-          &nbsp;&nbsp;📌 回顾核心：AI = 数据 + 算法 + 算力；机器学习是当前AI的主流路径。<br />
-          &nbsp;&nbsp;📌 推荐资源：在线课程（Andrew Ng的AI For Everyone）、书籍《人工智能简史》。<br />
-          &nbsp;&nbsp;📌
-          课后任务：选择一项AI服务（如推荐系统、语音助手），分析其可能的训练数据与潜在偏见，写200字短文。
+          &nbsp;&nbsp;回顾核心：AI = 数据 + 算法 + 算力；机器学习是当前AI的主流路径。<br />
+          &nbsp;&nbsp;推荐资源：在线课程（Andrew Ng的AI For Everyone）、书籍《人工智能简史》。<br />
+          &nbsp;&nbsp;课后任务：选择一项AI服务（如推荐系统、语音助手），分析其可能的训练数据与潜在偏见，写200字短文。
         </p>
 
         <h4>五、板书设计</h4>
@@ -144,19 +148,19 @@
             line-height: 1.8;
           "
         >
-          🧠 人工智能导论 · 思维蓝图<br />
+          人工智能导论 · 思维蓝图<br />
           ─────────────────<br />
-          📅 历史：图灵 → 达特茅斯 → 深度学习<br />
-          ⚙️ 原理：数据 ➔ 训练 ➔ 模型 ➔ 预测<br />
-          📦 分支：CV | NLP | 机器人 | 专家系统<br />
-          ⚖️ 伦理：公平 · 透明 · 责任 · 向善<br />
+          历史：图灵 → 达特茅斯 → 深度学习<br />
+          原理：数据 ➔ 训练 ➔ 模型 ➔ 预测<br />
+          分支：CV | NLP | 机器人 | 专家系统<br />
+          伦理：公平 · 透明 · 责任 · 向善<br />
           ─────────────────<br />
-          🌐 "AI不会取代你，但会用AI的人会。"
+          "AI不会取代你，但会用AI的人会。"
         </p>
 
         <h4>六、教学反思（预设）</h4>
         <p>
-          ✏️ 大学生对AI伦理话题参与度高，可适当延长辩论时间；Teachable
+          大学生对AI伦理话题参与度高，可适当延长辩论时间；Teachable
           Machine体验环节需提前确认网络畅通；部分文科生对"训练"概念仍感抽象，后续可引入"没有免费午餐定理"的通俗解释。建议布置小组项目：用现成AI工具（如Runway
           ML）创作一个小作品，激发创造力。
         </p>

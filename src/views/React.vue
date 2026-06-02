@@ -17,7 +17,7 @@
             :class="['type-btn', { active: selectedType === type.value }]"
             @click="selectedType = type.value"
           >
-            <span class="type-icon">{{ type.icon }}</span>
+            <span class="type-icon" v-html="getIconSvg(type.icon)"></span>
             <span class="type-text">{{ type.label }}</span>
           </button>
         </div>
@@ -49,11 +49,11 @@
         <div class="contact-inputs">
           <div class="input-wrapper">
             <input v-model="contact.email" type="email" class="form-input" placeholder="邮箱地址" />
-            <span class="input-icon">✉</span>
+            <span class="input-icon" v-html="getIconSvg('email')"></span>
           </div>
           <div class="input-wrapper">
             <input v-model="contact.phone" type="tel" class="form-input" placeholder="手机号码" />
-            <span class="input-icon">☎</span>
+            <span class="input-icon" v-html="getIconSvg('phone')"></span>
           </div>
         </div>
         <p class="hint">留下联系方式，方便我们及时跟进反馈</p>
@@ -106,9 +106,7 @@
             <div class="file-preview" v-if="file.isImage">
               <img :src="file.preview" alt="preview" />
             </div>
-            <div class="file-icon" v-else>
-              {{ getFileIcon(file.name) }}
-            </div>
+            <div class="file-icon" v-else v-html="getIconSvg(getFileIcon(file.name))"></div>
 
             <div class="file-info">
               <span class="file-name" :title="file.name">{{ file.name }}</span>
@@ -183,10 +181,10 @@ import { ref, computed, onUnmounted } from 'vue'
 
 // 反馈类型
 const feedbackTypes = [
-  { value: 'feature', label: '功能建议', icon: '💡' },
-  { value: 'bug', label: '问题反馈', icon: '🐛' },
-  { value: 'experience', label: '使用体验', icon: '✨' },
-  { value: 'other', label: '其他', icon: '📝' },
+  { value: 'feature', label: '功能建议', icon: 'lightbulb' },
+  { value: 'bug', label: '问题反馈', icon: 'bug' },
+  { value: 'experience', label: '使用体验', icon: 'sparkle' },
+  { value: 'other', label: '其他', icon: 'edit' },
 ]
 
 // 表单数据
@@ -289,12 +287,27 @@ const simulateUpload = (id) => {
 const getFileIcon = (filename) => {
   const ext = filename.split('.').pop().toLowerCase()
   const icons = {
-    pdf: '📄',
-    doc: '📝',
-    docx: '📝',
-    txt: '📃',
+    pdf: 'file',
+    doc: 'file',
+    docx: 'file',
+    txt: 'file',
   }
-  return icons[ext] || '📎'
+  return icons[ext] || 'attachment'
+}
+
+// 图标映射函数
+const getIconSvg = (iconName) => {
+  const icons = {
+    lightbulb: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2v1"/><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/></svg>`,
+    bug: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="3"/></svg>`,
+    sparkle: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`,
+    edit: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+    file: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`,
+    attachment: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>`,
+    email: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`,
+    phone: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`
+  }
+  return icons[iconName] || ''
 }
 
 // 格式化文件大小

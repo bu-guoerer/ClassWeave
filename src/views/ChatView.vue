@@ -27,7 +27,12 @@
           <div class="message-wrapper">
             <div v-if="msg.role === 'user'" class="user-content-wrapper">
               <div v-if="msg.quotedLesson" class="sent-quote-card">
-                <span class="quote-icon">📌</span>
+                <i class="iconfont quote-icon">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                  </svg>
+                </i>
                 <span>
                   正在基于 <b>{{ msg.quotedLesson.courseName }}</b> 生成：
                   <strong>{{ msg.quotedLesson.lessonTitle }}</strong>
@@ -39,7 +44,14 @@
                   :key="attIndex"
                   class="msg-attach-card"
                 >
-                  <span class="att-icon">{{ att.type === 'audio' ? '🎵' : '📄' }}</span>
+                  <i v-if="att.type === 'audio'" class="iconfont att-icon audio-icon">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M9 18V5l12-2v13"/>
+                      <circle cx="6" cy="18" r="3"/>
+                      <circle cx="18" cy="16" r="3"/>
+                    </svg>
+                  </i>
+                  <i v-else class="iconfont icon-wendang att-icon file-icon"></i>
                   <div class="att-info">
                     <span class="att-name">{{ att.name }}</span>
                     <span class="att-size">{{
@@ -381,7 +393,12 @@
         <div :class="['input-wrapper', { 'is-recording': isListening }]">
           <div class="quoted-box" v-if="quotedLessonData">
             <div class="quote-content">
-              <span class="quote-icon">📌</span>
+              <i class="iconfont quote-icon">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                </svg>
+              </i>
               <span class="quote-text">
                 正在基于 <b>{{ quotedLessonData.courseName }}</b> 生成：
                 <span style="color: #1677ff">{{ quotedLessonData.lessonTitle }}</span>
@@ -394,7 +411,12 @@
             v-if="lastCourseDesignPanel && currentPreviewType !== 'course-design'"
           >
             <div class="quote-content">
-              <span class="quote-icon">📚</span>
+              <i class="iconfont quote-icon">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+              </i>
               <span class="quote-text">
                 已保存 <b>{{ lastCourseDesignPanel.title }}</b>，可随时回到右侧查看或选择课时。
               </span>
@@ -409,8 +431,21 @@
               :key="`${att.name}-${index}`"
               class="att-tag"
             >
-              <span>{{ att.type === 'audio' ? '🎵' : '📄' }} {{ att.name }}</span>
-              <button class="remove-att" @click="removeAttachment(index)">×</button>
+              <i v-if="att.type === 'audio'" class="iconfont audio-icon">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 18V5l12-2v13"/>
+                  <circle cx="6" cy="18" r="3"/>
+                  <circle cx="18" cy="16" r="3"/>
+                </svg>
+              </i>
+              <i v-else class="iconfont icon-wendang file-icon"></i>
+              <span class="att-name">{{ att.name }}</span>
+              <button class="remove-att" @click="removeAttachment(index)">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
             </div>
           </div>
 
@@ -4573,6 +4608,49 @@ onBeforeUnmount(() => {
   border: 1px solid #e2e8f4;
   border-radius: 999px;
   padding: 8px 12px;
+}
+
+.att-tag .file-icon {
+  font-size: 16px;
+  color: #1677ff;
+}
+
+.att-tag .audio-icon {
+  display: flex;
+  align-items: center;
+  color: #1677ff;
+}
+
+.att-tag .att-name {
+  font-size: 13px;
+  color: #1f2d3d;
+  font-weight: 500;
+}
+
+.att-tag .remove-att {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  background: #f1f5f9;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #64748b;
+  transition: all 0.2s ease;
+  margin-left: 4px;
+}
+
+.att-tag .remove-att:hover {
+  background: #fee2e2;
+  color: #ef4444;
+  transform: scale(1.1);
+}
+
+.att-tag .remove-att:active {
+  transform: scale(0.95);
 }
 
 .sent-quote-card {

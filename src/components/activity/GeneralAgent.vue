@@ -13,7 +13,12 @@
             :style="{ animationDelay: `${idx * 0.1}s` }"
           >
             <!-- 用户头像保持原样 -->
-            <div class="avatar" v-if="msg.role === 'user'">👤</div>
+            <div class="avatar" v-if="msg.role === 'user'">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
             <!-- AI 头像使用 ThinkingLogo 组件，静态显示（思考完成态） -->
             <div class="avatar ai-avatar" v-else>
               <ThinkingLogo :is-thinking="false" />
@@ -48,7 +53,7 @@
       <div class="doc-content">
         <h3><i class="iconfont icon-zhinengti title-icon"></i> 通用智能体 · 功能介绍</h3>
 
-        <h4>✨ 核心能力</h4>
+        <h4>核心能力</h4>
         <p>
           • <strong>多轮对话</strong>：自然流畅的上下文理解，支持复杂任务拆解。<br />
           • <strong>知识问答</strong>：涵盖科学、历史、文化、技术等广泛领域。<br />
@@ -57,7 +62,7 @@
           • <strong>学习辅助</strong>：解释概念、出题练习、学习路径建议。
         </p>
 
-        <h4>📌 使用场景</h4>
+        <h4>使用场景</h4>
         <p>
           • 日常办公助手<br />
           • 编程调试伙伴<br />
@@ -66,11 +71,11 @@
           • 信息快速摘要
         </p>
 
-        <h4>🔧 参数配置（开发中）</h4>
+        <h4>参数配置（开发中）</h4>
         <p>未来可在此调整模型参数，如温度、最大输出长度、角色设定等。敬请期待！</p>
 
         <div class="info-note">
-          ⚡ 当前为演示模式，对话内容为预设示例。实际使用时将接入大语言模型 API。
+          当前为演示模式，对话内容为预设示例。实际使用时将接入大语言模型 API。
         </div>
       </div>
     </div>
