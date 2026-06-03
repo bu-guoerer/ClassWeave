@@ -68,6 +68,7 @@
 
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 import { useCaptcha } from '@/composables/useCaptcha'
 import { useCountdown } from '@/composables/useCountdown'
 
@@ -86,6 +87,9 @@ const loginLoading = ref(false)
 
 // 邮箱验证码倒计时
 const { countdown: emailCodeCountdown, start: startEmailCodeCountdown } = useCountdown(60)
+
+// 路由
+const router = useRouter()
 
 // DOM 引用
 const emailInput = ref(null)
@@ -134,7 +138,6 @@ async function handleGetEmailCode() {
     return
   }
 
-  alert('验证码已发送至邮箱（模拟）')
   startEmailCodeCountdown()
 }
 
@@ -162,8 +165,8 @@ async function handleLogin() {
 
   loginLoading.value = true
   setTimeout(() => {
-    alert('邮箱登录成功（模拟）')
     loginLoading.value = false
+    router.push('/chat')
   }, 1000)
 }
 
