@@ -1054,20 +1054,21 @@ input:checked + .slider:before {
   font-size: 12px;
   color: #666;
   padding: 4px 0;
+  display: none; 
 }
 
 .outline-title {
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding-right: 12px;
+   color: #000000 !important;
+  font-size: 16px !important;
+  font-weight: 900 !important;
+  margin-bottom: 0 !important;
+  
+  /* 默认位置 */
+  transform: translateY(50px) !important; 
+  opacity: 1 !important;
+  transition: transform var(--d) var(--e), opacity var(--d) var(--e) !important;
 }
-
-.outline-item:hover .outline-title,
-.outline-item:hover .outline-hours {
-  color: #1677ff;
-}
+ 
 
 .outline-hours {
   min-width: 38px;

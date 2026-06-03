@@ -18,7 +18,12 @@
     />
 
     <div :class="['chat-main-area', { 'is-welcome': isWelcomeMode }]">
-      <div v-show="!isWelcomeMode" ref="chatListRef" class="chat-messages" @scroll="handleChatScroll">
+      <div
+        v-show="!isWelcomeMode"
+        ref="chatListRef"
+        class="chat-messages"
+        @scroll="handleChatScroll"
+      >
         <div
           v-for="(msg, index) in messages"
           :key="`${msg.type}-${index}`"
@@ -28,9 +33,18 @@
             <div v-if="msg.role === 'user'" class="user-content-wrapper">
               <div v-if="msg.quotedLesson" class="sent-quote-card">
                 <i class="iconfont quote-icon">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="16"
+                    height="16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"
+                    />
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
                   </svg>
                 </i>
                 <span>
@@ -45,10 +59,17 @@
                   class="msg-attach-card"
                 >
                   <i v-if="att.type === 'audio'" class="iconfont att-icon audio-icon">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M9 18V5l12-2v13"/>
-                      <circle cx="6" cy="18" r="3"/>
-                      <circle cx="18" cy="16" r="3"/>
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M9 18V5l12-2v13" />
+                      <circle cx="6" cy="18" r="3" />
+                      <circle cx="18" cy="16" r="3" />
                     </svg>
                   </i>
                   <i v-else class="iconfont icon-wendang att-icon file-icon"></i>
@@ -137,7 +158,9 @@
               <div class="form-group">
                 <div class="clarification-question">
                   <h4>还需要补充一点信息</h4>
-                  <span v-if="msg.roundLabel" class="clarification-picked">{{ msg.roundLabel }}</span>
+                  <span v-if="msg.roundLabel" class="clarification-picked">{{
+                    msg.roundLabel
+                  }}</span>
                 </div>
                 <div class="clarification-prompt">
                   {{ getClarificationDisplayPrompt(msg) }}
@@ -145,10 +168,12 @@
               </div>
 
               <div class="clarification-footer">
-                <div class="clarification-progress">
-                  请在下方输入框回复。
-                </div>
-                <div v-if="msg.progressPercent != null" class="clarification-progress-bar" aria-hidden="true">
+                <div class="clarification-progress">请在下方输入框回复。</div>
+                <div
+                  v-if="msg.progressPercent != null"
+                  class="clarification-progress-bar"
+                  aria-hidden="true"
+                >
                   <span :style="{ width: `${msg.progressPercent}%` }"></span>
                 </div>
               </div>
@@ -195,16 +220,30 @@
                     <span class="outline-point-count">{{ slide.bullets?.length || 0 }} 个要点</span>
                   </div>
                   <div class="outline-title">{{ slide.title || `第 ${slide.index} 页` }}</div>
-                  <div v-if="slide.bullets?.length" class="outline-bullets">
-                    <div
-                      v-for="(bullet, bulletIndex) in getOutlinePreviewBullets(slide)"
-                      :key="bulletIndex"
-                      class="outline-bullet"
-                    >
-                      {{ bullet }}
+                  <div v-if="slide.bullets?.length" class="outline-bullets-container">
+                    <!-- 1. 平时显示的：前 3 个要点 (用 getOutlinePreviewBullets 方法截断) -->
+                    <div class="outline-bullets-preview">
+                      <div
+                        v-for="(bullet, bulletIndex) in getOutlinePreviewBullets(slide)"
+                        :key="'prev-' + bulletIndex"
+                        class="outline-bullet"
+                      >
+                        {{ bullet }}
+                      </div>
+                      <div v-if="getHiddenOutlineBulletCount(slide) > 0" class="outline-hover-tip">
+                        还有 {{ getHiddenOutlineBulletCount(slide) }} 个要点，请悬浮查看
+                      </div>
                     </div>
-                    <div v-if="getHiddenOutlineBulletCount(slide)" class="outline-more-bullets">
-                      还有 {{ getHiddenOutlineBulletCount(slide) }} 个要点
+
+                    <!-- 2. 悬浮时显示的：所有要点 -->
+                    <div class="outline-bullets-full">
+                      <div
+                        v-for="(bullet, bulletIndex) in slide.bullets"
+                        :key="'full-' + bulletIndex"
+                        class="outline-bullet"
+                      >
+                        {{ bullet }}
+                      </div>
                     </div>
                   </div>
                 </article>
@@ -334,12 +373,13 @@
               </div>
             </div>
 
-            <div v-if="msg.type === 'digital-human-actions'" class="content form-card digital-human-card">
+            <div
+              v-if="msg.type === 'digital-human-actions'"
+              class="content form-card digital-human-card"
+            >
               <div class="form-group">
                 <h4>数字人讲解</h4>
-                <div class="card-tip">
-                  当前课件已经准备好，可以继续生成数字人讲解。
-                </div>
+                <div class="card-tip">当前课件已经准备好，可以继续生成数字人讲解。</div>
               </div>
 
               <div class="choice-row">
@@ -394,9 +434,18 @@
           <div class="quoted-box" v-if="quotedLessonData">
             <div class="quote-content">
               <i class="iconfont quote-icon">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"
+                  />
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
                 </svg>
               </i>
               <span class="quote-text">
@@ -412,13 +461,21 @@
           >
             <div class="quote-content">
               <i class="iconfont quote-icon">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
                 </svg>
               </i>
               <span class="quote-text">
-                已保存 <b>{{ lastCourseDesignPanel.title }}</b>，可随时回到右侧查看或选择课时。
+                已保存 <b>{{ lastCourseDesignPanel.title }}</b
+                >，可随时回到右侧查看或选择课时。
               </span>
             </div>
             <button class="reopen-panel-btn" type="button" @click="showCourseDesignPanel()">
@@ -432,18 +489,32 @@
               class="att-tag"
             >
               <i v-if="att.type === 'audio'" class="iconfont audio-icon">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M9 18V5l12-2v13"/>
-                  <circle cx="6" cy="18" r="3"/>
-                  <circle cx="18" cy="16" r="3"/>
+                <svg
+                  viewBox="0 0 24 24"
+                  width="14"
+                  height="14"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M9 18V5l12-2v13" />
+                  <circle cx="6" cy="18" r="3" />
+                  <circle cx="18" cy="16" r="3" />
                 </svg>
               </i>
               <i v-else class="iconfont icon-wendang file-icon"></i>
               <span class="att-name">{{ att.name }}</span>
               <button class="remove-att" @click="removeAttachment(index)">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="18" y1="6" x2="6" y2="18"/>
-                  <line x1="6" y1="6" x2="18" y2="18"/>
+                <svg
+                  viewBox="0 0 24 24"
+                  width="14"
+                  height="14"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
               </button>
             </div>
@@ -469,8 +540,22 @@
                 @click="triggerFileInput"
               >
                 <svg class="tool-btn__svg" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M4 4a2 2 0 0 1 2-2h4.586a2 2 0 0 1 1.414.586l2.828 2.828A2 2 0 0 1 16 6.828V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M12 2v4a2 2 0 0 0 2 2h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path
+                    d="M4 4a2 2 0 0 1 2-2h4.586a2 2 0 0 1 1.414.586l2.828 2.828A2 2 0 0 1 16 6.828V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M12 2v4a2 2 0 0 0 2 2h4"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
                 </svg>
                 <span class="tool-btn__label">文件上传</span>
               </button>
@@ -505,43 +590,64 @@
       <!-- 欢迎模式下的介绍信息 -->
       <Transition name="welcome-fade">
         <div v-show="isWelcomeMode" class="welcome-intro-area">
-        <div class="intro-cards">
-          <div class="intro-card" @click="fillSuggestion('帮我设计一门人工智能导论课程')">
-            <div class="intro-icon">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-              </svg>
+          <div class="intro-cards">
+            <div class="intro-card" @click="fillSuggestion('帮我设计一门人工智能导论课程')">
+              <div class="intro-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                >
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                </svg>
+              </div>
+              <div class="intro-title">智能课程设计</div>
+              <div class="intro-desc">输入课程主题，AI 自动规划教学大纲与课时安排</div>
             </div>
-            <div class="intro-title">智能课程设计</div>
-            <div class="intro-desc">输入课程主题，AI 自动规划教学大纲与课时安排</div>
-          </div>
-          <div class="intro-card" @click="fillSuggestion('根据这份PDF生成PPT')">
-            <div class="intro-icon">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="17 8 12 3 7 8"/>
-                <line x1="12" y1="3" x2="12" y2="15"/>
-              </svg>
+            <div class="intro-card" @click="fillSuggestion('根据这份PDF生成PPT')">
+              <div class="intro-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+              </div>
+              <div class="intro-title">资料上传生成</div>
+              <div class="intro-desc">上传 PDF、音频等资料，AI 提炼内容生成课件</div>
             </div>
-            <div class="intro-title">资料上传生成</div>
-            <div class="intro-desc">上传 PDF、音频等资料，AI 提炼内容生成课件</div>
-          </div>
-          <div class="intro-card" @click="fillSuggestion('帮我优化这节课的课件')">
-            <div class="intro-icon">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="3"/>
-                <path d="M12 1v6m0 6v10"/>
-                <path d="M21 12h-6m-6 0H1"/>
-                <path d="M19.07 4.93L14.83 9.17M9.17 14.83l-4.24 4.24"/>
-                <path d="M19.07 19.07L14.83 14.83M9.17 9.17L4.93 4.93"/>
-              </svg>
+            <div class="intro-card" @click="fillSuggestion('帮我优化这节课的课件')">
+              <div class="intro-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                >
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M12 1v6m0 6v10" />
+                  <path d="M21 12h-6m-6 0H1" />
+                  <path d="M19.07 4.93L14.83 9.17M9.17 14.83l-4.24 4.24" />
+                  <path d="M19.07 19.07L14.83 14.83M9.17 9.17L4.93 4.93" />
+                </svg>
+              </div>
+              <div class="intro-title">课件智能优化</div>
+              <div class="intro-desc">基于现有课件，AI 辅助优化内容与教学设计</div>
             </div>
-            <div class="intro-title">课件智能优化</div>
-            <div class="intro-desc">基于现有课件，AI 辅助优化内容与教学设计</div>
           </div>
         </div>
-      </div>
       </Transition>
     </div>
 
@@ -585,7 +691,10 @@
             <article
               v-for="lesson in courseDesignPanel.lessons"
               :key="lesson.key"
-              :class="['course-design-lesson', { 'is-active': selectedCourseDesignLessonKey === lesson.key }]"
+              :class="[
+                'course-design-lesson',
+                { 'is-active': selectedCourseDesignLessonKey === lesson.key },
+              ]"
               @click="selectCourseDesignLesson(lesson)"
             >
               <div class="course-design-lesson__head">
@@ -749,7 +858,9 @@ function buildQuotedLessonPrompt(data) {
   const lesson = data?.lesson || {}
   const plan = data?.plan || {}
   const lines = [
-    `请基于整门课程《${data?.courseName || plan.title || '课程'}》中的「${data?.lessonTitle || lesson.title || '本节课'}」生成这一节课的 PPT 大纲。`,
+    `请基于整门课程《${data?.courseName || plan.title || '课程'}》中的「${
+      data?.lessonTitle || lesson.title || '本节课'
+    }」生成这一节课的 PPT 大纲。`,
     '注意：这里只生成当前这一节课的页面级教学大纲和后续 PPT，不要生成整门课程的所有课件。',
     `课时信息：${data?.hours || (lesson.hourIndex ? `第 ${lesson.hourIndex} 学时` : '1 学时')}`,
     lesson.unitTitle ? `所属单元：${lesson.unitTitle}` : '',
@@ -790,7 +901,8 @@ function showCourseDesignPanel(plan = lastCourseDesignPanel.value) {
   }
   courseDesignPanel.value = plan
   lastCourseDesignPanel.value = plan
-  currentCourseDesignSessionId.value = plan.sessionId || plan.id || currentCourseDesignSessionId.value
+  currentCourseDesignSessionId.value =
+    plan.sessionId || plan.id || currentCourseDesignSessionId.value
   selectedCourseDesignLessonKey.value = plan.lessons?.[0]?.key || ''
   currentPreviewType.value = 'course-design'
   currentPreviewConfig.value = null
@@ -798,22 +910,22 @@ function showCourseDesignPanel(plan = lastCourseDesignPanel.value) {
   previewLoading.value = false
   currentPreviewKey.value = `course-design-${plan.id || Date.now()}`
 }
-  const displayedThought = ref('')
-  let typingInterval = null
-  let progressStreamPollingTimer = null
-  let thoughtTypewriterTimer = null
-  let thinkingElapsedTimer = null
-  // When we are about to show the next interaction card (clarification/outline/draft),
-  // we prefer "finishing" the current thought in a progressive way instead of snapping.
-  let thoughtFinishMode = false
-  const progressStreamState = ref({
-    sessionId: '',
-    nextOffset: 0,
-    isTerminal: false,
-    events: [],
-    seenEventKeys: [],
-  })
-  const activeThinkingMessageIndex = ref(-1)
+const displayedThought = ref('')
+let typingInterval = null
+let progressStreamPollingTimer = null
+let thoughtTypewriterTimer = null
+let thinkingElapsedTimer = null
+// When we are about to show the next interaction card (clarification/outline/draft),
+// we prefer "finishing" the current thought in a progressive way instead of snapping.
+let thoughtFinishMode = false
+const progressStreamState = ref({
+  sessionId: '',
+  nextOffset: 0,
+  isTerminal: false,
+  events: [],
+  seenEventKeys: [],
+})
+const activeThinkingMessageIndex = ref(-1)
 const fullThoughtText = `一、审题与核心定位（PPT创作前置思考，先明确方向不跑偏）\n1. 核心主题拆解：“人工智能时代”——不是单纯讲AI技术，而是讲“时代”，需覆盖「过去-现在-未来」，串联技术、应用、影响、挑战，避免沦为纯技术堆砌，要体现“时代变革”的核心逻辑。\n2. 听众画像预判：默认是通用受众（学生/职场人/普通听众），不追求过深的技术原理，重点放在“易懂、有共鸣、有启发”，同时预留少量专业细节，兼顾不同认知水平，避免太浅显无价值、太深奥听不懂。\n3. 汇报核心目标：让听众听懂3件事——① 人工智能时代已经到来，体现在哪里；② 这个时代给我们带来了什么（机遇+挑战）；③ 我们该如何适应这个时代，不被淘汰。\n4. 逻辑闭环设定：必须遵循「认知规律」——从熟悉的场景切入，再讲原理简化版，接着讲应用落地，然后讲问题与应对，最后总结升华，让听众从“知道”到“理解”再到“思考”，形成完整认知链。\n5. 禁忌与侧重点：避免夸大AI能力（不渲染“AI取代人类”的焦虑，也不神化AI的无所不能）；侧重点放在“落地场景”和“个人/社会适配”，弱化复杂算法推导，突出“时代性”而非“技术性”。`
 // 处理“预览课程大纲”事件（完美融合现有预览结构）
 const handlePreviewDoc = (course) => {
@@ -849,7 +961,9 @@ const hasAudioPendingAttachments = computed(() =>
 )
 const currentPhase = computed(() => getSessionPhase(currentSessionSnapshot.value))
 const activeClarificationMessage = computed(() =>
-  [...messages.value].reverse().find((message) => message.type === 'clarification' && !message.isSubmitted)
+  [...messages.value]
+    .reverse()
+    .find((message) => message.type === 'clarification' && !message.isSubmitted)
 )
 const activeDigitalHumanActionMessage = computed(() =>
   [...messages.value]
@@ -883,9 +997,12 @@ const inputPlaceholder = computed(() => {
   if (quotedLessonData.value) {
     return '根据这节课概括性大纲生成丰富的单节课教学大纲，制作PPT...'
   }
-  if (courseDesignPanel.value) return '如需修改整门课程设计，直接输入修改意见；也可以在右侧选择某一节课'
-  if (activeClarificationMessage.value) return '请在这里回复上方问题，支持一句话补充，也可以直接发送继续'
-  if (activeDigitalHumanActionMessage.value) return '请在这里输入数字人讲解要求，例如对象、语气、时长和重点内容'
+  if (courseDesignPanel.value)
+    return '如需修改整门课程设计，直接输入修改意见；也可以在右侧选择某一节课'
+  if (activeClarificationMessage.value)
+    return '请在这里回复上方问题，支持一句话补充，也可以直接发送继续'
+  if (activeDigitalHumanActionMessage.value)
+    return '请在这里输入数字人讲解要求，例如对象、语气、时长和重点内容'
   if (currentPhase.value === 'outline_review')
     return '如需修改大纲，直接输入修改意见；满意可点击“接受大纲”'
   if (currentPhase.value === 'draft_review')
@@ -1202,8 +1319,9 @@ function buildProgressPatch(snapshot, startedAt, round) {
 function isCourseDesignIntent(value) {
   const text = String(value || '')
   return (
-    /(整门|整個|总体|總體|宏观|宏觀|全套|整个课程|整门课程|课程设计|课时规划|學時|学时)/i.test(text) &&
-    /(课程|教学设计|课时|学时|安排|规划|大纲)/i.test(text)
+    /(整门|整個|总体|總體|宏观|宏觀|全套|整个课程|整门课程|课程设计|课时规划|學時|学时)/i.test(
+      text
+    ) && /(课程|教学设计|课时|学时|安排|规划|大纲)/i.test(text)
   )
 }
 
@@ -1232,7 +1350,10 @@ function normalizeCourseDesignSnapshot(payload) {
 function getCourseDesignPhase(snapshot) {
   if (!snapshot) return 'idle'
   if (['failed', 'error', 'interrupted'].includes(snapshot.status)) return 'failed'
-  if (snapshot.status === 'needs_clarification' || snapshot.nextAction === 'submit_clarifications') {
+  if (
+    snapshot.status === 'needs_clarification' ||
+    snapshot.nextAction === 'submit_clarifications'
+  ) {
     return 'clarification'
   }
   if (snapshot.status === 'completed' || snapshot.nextAction === 'review_or_revise_plan') {
@@ -1264,14 +1385,24 @@ function normalizeCourseDesignPlan(payload, sessionId = currentCourseDesignSessi
         hour.key_points || hour.keyPoints || hour.points || hour.content || hour.summary
       ).slice(0, 8),
       teacherActions: flattenReadableText(hour.teacher_actions || hour.teacherActions).slice(0, 6),
-      studentActivities: flattenReadableText(hour.student_activities || hour.studentActivities).slice(0, 6),
+      studentActivities: flattenReadableText(
+        hour.student_activities || hour.studentActivities
+      ).slice(0, 6),
       assessment: flattenReadableText(hour.assessment || hour.evaluation).slice(0, 4),
-      homework: flattenReadableText(hour.homework || hour.after_class_task || hour.afterClassTask).slice(0, 4),
+      homework: flattenReadableText(
+        hour.homework || hour.after_class_task || hour.afterClassTask
+      ).slice(0, 4),
     }
   })
 
   return {
-    id: sessionId || data.session_id || data.sessionId || data.plan_id || data.planId || `course-${Date.now()}`,
+    id:
+      sessionId ||
+      data.session_id ||
+      data.sessionId ||
+      data.plan_id ||
+      data.planId ||
+      `course-${Date.now()}`,
     sessionId: sessionId || data.session_id || data.sessionId || '',
     planId: data.plan_id || data.planId || sessionId || '',
     title: preview.course_title || preview.courseTitle || preview.title || '整门课程设计',
@@ -1282,9 +1413,14 @@ function normalizeCourseDesignPlan(payload, sessionId = currentCourseDesignSessi
     learnerProfile: preview.learner_profile || preview.learnerProfile || '',
     courseGoal: preview.course_goal || preview.courseGoal || '',
     constraints: preview.teaching_constraints || preview.teachingConstraints || '',
-    objectives: flattenReadableText(preview.overall_objectives || preview.overallObjectives).slice(0, 8),
+    objectives: flattenReadableText(preview.overall_objectives || preview.overallObjectives).slice(
+      0,
+      8
+    ),
     overview: flattenReadableText(preview.course_overview || preview.courseOverview).slice(0, 8),
-    assessmentText: flattenReadableText(preview.assessment_strategy || preview.assessmentStrategy).join('、'),
+    assessmentText: flattenReadableText(
+      preview.assessment_strategy || preview.assessmentStrategy
+    ).join('、'),
     lessons,
   }
 }
@@ -1481,7 +1617,9 @@ function buildDirectPreviewPayload(url, options = {}) {
   const directKey = typeof url === 'string' && url ? createStablePreviewKey(url) : ''
   const fileId = sanitizeFileId(
     options.fileId ||
-      `${options.sessionId || 'session'}-${options.phase || 'preview'}${directKey ? `-${directKey}` : ''}`
+      `${options.sessionId || 'session'}-${options.phase || 'preview'}${
+        directKey ? `-${directKey}` : ''
+      }`
   )
   const { bucketName, objectKey } = deriveStorageInfoFromUrl(url, PREVIEW_BUCKET, fileName)
   return {
@@ -1533,7 +1671,9 @@ function buildDocumentPreviewPayload(url, options = {}) {
   const directKey = typeof url === 'string' && url ? createStablePreviewKey(url) : ''
   const fileId = sanitizeFileId(
     options.fileId ||
-      `${options.sessionId || 'session'}-${options.phase || 'document-preview'}${directKey ? `-${directKey}` : ''}`
+      `${options.sessionId || 'session'}-${options.phase || 'document-preview'}${
+        directKey ? `-${directKey}` : ''
+      }`
   )
   const { bucketName, objectKey } = deriveStorageInfoFromUrl(url, PREVIEW_BUCKET, fileName)
 
@@ -1925,9 +2065,10 @@ function extractDraftRevisionEntries(payload, sessionId) {
 }
 
 function buildDraftVersions(baseDraft, revisionsPayload, sessionId) {
-  const allVersions = [baseDraft, ...extractDraftRevisionEntries(revisionsPayload, sessionId)].filter(
-    Boolean
-  )
+  const allVersions = [
+    baseDraft,
+    ...extractDraftRevisionEntries(revisionsPayload, sessionId),
+  ].filter(Boolean)
   const uniqueVersions = []
   const seenUrls = new Set()
 
@@ -1983,7 +2124,9 @@ function getDraftActionMessage(sessionId) {
 }
 
 function hasDraftFileMessage(sessionId) {
-  return messages.value.some((message) => message.type === 'file' && message.sessionId === sessionId)
+  return messages.value.some(
+    (message) => message.type === 'file' && message.sessionId === sessionId
+  )
 }
 
 function getVisibleOutlineSlides(actionMessage) {
@@ -2027,10 +2170,10 @@ function buildDisplayFileName(fileName, kind = 'ppt') {
     (kind === 'teaching-plan' || kind === 'after-class-homework'
       ? 'docx'
       : kind === 'package' || kind === 'html5-package'
-        ? 'zip'
-        : kind === 'html5-entry'
-          ? 'html'
-          : 'pptx')
+      ? 'zip'
+      : kind === 'html5-entry'
+      ? 'html'
+      : 'pptx')
   const nameMap = {
     draft: '课程PPT初版',
     final: '课程PPT最终版',
@@ -2157,14 +2300,13 @@ function extractArtifacts(payload, sessionId) {
   const pptxUrl = normalizedUrls.pptx || ''
   const fileName = getFileNameFromUrl(pptxUrl, 'final.pptx')
   const displayName = buildDisplayFileName(fileName, 'final')
-  const previewPayload =
-    pptxUrl
-      ? buildDirectPreviewPayload(pptxUrl, {
-          sessionId,
-          phase: 'final-pptx',
-          fileName,
-        })
-      : resolvePreviewPayload(payload, pptxUrl, { sessionId, phase: 'final', fileName })
+  const previewPayload = pptxUrl
+    ? buildDirectPreviewPayload(pptxUrl, {
+        sessionId,
+        phase: 'final-pptx',
+        fileName,
+      })
+    : resolvePreviewPayload(payload, pptxUrl, { sessionId, phase: 'final', fileName })
   const documentUrl = normalizedUrls.teaching_plan || ''
   const documentFileName = getFileNameFromUrl(
     documentUrl,
@@ -2325,13 +2467,13 @@ function buildCourseDesignProgressPatch(snapshot, startedAt, round) {
     progressTitle: isExport
       ? '正在整理课程设计文档'
       : isPlan
-        ? '正在规划每个学时'
-        : '正在分析整门课程需求',
+      ? '正在规划每个学时'
+      : '正在分析整门课程需求',
     progressSubtitle: isExport
       ? '右侧会展示完整课程设计，之后可以继续自然语言修改。'
       : isPlan
-        ? '我会把课程拆成逐学时的主题、目标、要点和教学活动。'
-        : '我在识别授课对象、总学时、课程目标和约束条件。',
+      ? '我会把课程拆成逐学时的主题、目标、要点和教学活动。'
+      : '我在识别授课对象、总学时、课程目标和约束条件。',
     progressBadge: isExport ? '收尾中' : isPlan ? '规划中' : '理解中',
     progressSteps: [
       { label: '分析需求', state: isPlan || isExport ? 'done' : 'active' },
@@ -2349,16 +2491,34 @@ async function pullCourseDesignProgressStreamOnce(sessionId) {
   const state = progressStreamState.value
   const nextOffset =
     state.sessionId === sessionId && Number.isFinite(state.nextOffset) ? state.nextOffset : 0
-  const payload = await fetchCourseDesignProgressStreamApi(sessionId, { since: nextOffset, limit: 50 })
+  const payload = await fetchCourseDesignProgressStreamApi(sessionId, {
+    since: nextOffset,
+    limit: 50,
+  })
   const data = unwrapData(payload)
-  const events = Array.isArray(data.events) ? data.events : Array.isArray(data.data) ? data.data : []
+  const events = Array.isArray(data.events)
+    ? data.events
+    : Array.isArray(data.data)
+    ? data.data
+    : []
   const incomingNextOffset =
-    data.next_since ?? data.nextSince ?? data.next_offset ?? data.nextOffset ?? data.cursor ?? data.since ?? data.offset
+    data.next_since ??
+    data.nextSince ??
+    data.next_offset ??
+    data.nextOffset ??
+    data.cursor ??
+    data.since ??
+    data.offset
 
   if (progressStreamState.value.sessionId !== sessionId) resetProgressStreamState(sessionId)
   appendUniqueProgressEvents(events)
-  if (incomingNextOffset !== undefined && incomingNextOffset !== null && incomingNextOffset !== '') {
-    progressStreamState.value.nextOffset = Number(incomingNextOffset) || progressStreamState.value.nextOffset
+  if (
+    incomingNextOffset !== undefined &&
+    incomingNextOffset !== null &&
+    incomingNextOffset !== ''
+  ) {
+    progressStreamState.value.nextOffset =
+      Number(incomingNextOffset) || progressStreamState.value.nextOffset
   }
 
   const nextText = progressStreamState.value.events
@@ -2416,7 +2576,10 @@ async function presentCourseDesignState(snapshot, thinkingIndex) {
   if (snapshot?.sessionId) currentCourseDesignSessionId.value = snapshot.sessionId
   const phase = getCourseDesignPhase(snapshot)
   if (phase === 'clarification') {
-    await finishThinkingMessage(thinkingIndex, '我还需要补充一些课程约束，填完后会继续生成整门课程设计。')
+    await finishThinkingMessage(
+      thinkingIndex,
+      '我还需要补充一些课程约束，填完后会继续生成整门课程设计。'
+    )
     messages.value.push(buildClarificationActionMessage(snapshot, 'course-design'))
     focusLatestMessage()
     return
@@ -2437,24 +2600,24 @@ async function presentCourseDesignState(snapshot, thinkingIndex) {
   }
 }
 
-  async function finishThinkingMessage(index, content) {
-    if (typingInterval) clearInterval(typingInterval) // 👈 新增：结束时清理定时器
-    if (!messages.value[index]) return
-    stopProgressStreamPolling()
-    // Let the typewriter catch up first so the thinking transcript doesn't "jump" to the end.
-    await waitForThoughtTypewriter(index, { timeoutMs: 3000 })
-    // Fallback: ensure we never leave a visibly truncated tail.
-    flushThoughtTypewriter(index)
-    stopThoughtTypewriter()
-    await wait(220)
-    messages.value[index].isThinking = false
-    messages.value[index].type = 'text'
-    messages.value[index].content = content
-    messages.value[index].progressBadge = '已完成'
-    stopThinkingElapsedTimer()
-    activeThinkingMessageIndex.value = -1
-    focusLatestMessage()
-  }
+async function finishThinkingMessage(index, content) {
+  if (typingInterval) clearInterval(typingInterval) // 👈 新增：结束时清理定时器
+  if (!messages.value[index]) return
+  stopProgressStreamPolling()
+  // Let the typewriter catch up first so the thinking transcript doesn't "jump" to the end.
+  await waitForThoughtTypewriter(index, { timeoutMs: 3000 })
+  // Fallback: ensure we never leave a visibly truncated tail.
+  flushThoughtTypewriter(index)
+  stopThoughtTypewriter()
+  await wait(220)
+  messages.value[index].isThinking = false
+  messages.value[index].type = 'text'
+  messages.value[index].content = content
+  messages.value[index].progressBadge = '已完成'
+  stopThinkingElapsedTimer()
+  activeThinkingMessageIndex.value = -1
+  focusLatestMessage()
+}
 
 function patchMessage(index, patch) {
   if (!messages.value[index]) return
@@ -2462,7 +2625,7 @@ function patchMessage(index, patch) {
 }
 
 function toggleThought(msg) {
-    msg.isThoughtExpanded = !msg.isThoughtExpanded
+  msg.isThoughtExpanded = !msg.isThoughtExpanded
 }
 
 function stopThoughtTypewriter() {
@@ -2497,12 +2660,12 @@ function startThinkingElapsedTimer(messageIndex) {
   }, 500)
 }
 
-  function stopProgressStreamPolling() {
-    if (progressStreamPollingTimer) {
-      clearInterval(progressStreamPollingTimer)
-      progressStreamPollingTimer = null
-    }
+function stopProgressStreamPolling() {
+  if (progressStreamPollingTimer) {
+    clearInterval(progressStreamPollingTimer)
+    progressStreamPollingTimer = null
   }
+}
 
 function resetProgressStreamState(sessionId) {
   progressStreamState.value = {
@@ -2565,61 +2728,61 @@ function appendUniqueProgressEvents(events) {
   progressStreamState.value.seenEventKeys = Array.from(seen)
 }
 
-  function ensureThoughtTypewriter(messageIndex) {
-    if (thoughtTypewriterTimer) return
-    thoughtTypewriterTimer = setInterval(() => {
-      const idx = messageIndex
-      const msg = idx >= 0 ? messages.value[idx] : null
-      if (!msg) return
-
-      const target = String(msg.thoughtTargetText || '')
-      const current = String(msg.thoughtText || '')
-      if (!target) return
-      if (current.length >= target.length) {
-        if (!msg.isThinking) stopThoughtTypewriter()
-        return
-      }
-
-      // Gradual reveal (feels more like "thinking").
-      // During finishing (before showing next interaction), we speed up a bit to avoid long waits.
-      const baseStep = Math.max(2, Math.min(10, Math.ceil(target.length / 650)))
-      const step = thoughtFinishMode ? Math.max(baseStep, 10) : baseStep
-      msg.thoughtText = target.slice(0, current.length + step)
-      scrollToBottom()
-    }, 48)
-  }
-
-  function isThoughtTypewriterDone(messageIndex) {
-    const idx = Number(messageIndex)
-    const msg = idx >= 0 ? messages.value[idx] : null
-    if (!msg) return true
-    const target = String(msg.thoughtTargetText || '')
-    const current = String(msg.thoughtText || '')
-    if (!target) return true
-    return current.length >= target.length
-  }
-
-  async function waitForThoughtTypewriter(messageIndex, { timeoutMs = 8000 } = {}) {
-    const idx = Number(messageIndex)
+function ensureThoughtTypewriter(messageIndex) {
+  if (thoughtTypewriterTimer) return
+  thoughtTypewriterTimer = setInterval(() => {
+    const idx = messageIndex
     const msg = idx >= 0 ? messages.value[idx] : null
     if (!msg) return
 
-    // If we haven't received any target yet, don't block the UI.
     const target = String(msg.thoughtTargetText || '')
+    const current = String(msg.thoughtText || '')
     if (!target) return
-
-    thoughtFinishMode = true
-    const startedAt = Date.now()
-    // Make sure typewriter is running so it can catch up.
-    ensureThoughtTypewriter(idx)
-
-    while (Date.now() - startedAt < timeoutMs) {
-      if (isThoughtTypewriterDone(idx)) return
-      // Small wait; keep it simple and avoid creating additional timers.
-      // eslint-disable-next-line no-await-in-loop
-      await wait(60)
+    if (current.length >= target.length) {
+      if (!msg.isThinking) stopThoughtTypewriter()
+      return
     }
+
+    // Gradual reveal (feels more like "thinking").
+    // During finishing (before showing next interaction), we speed up a bit to avoid long waits.
+    const baseStep = Math.max(2, Math.min(10, Math.ceil(target.length / 650)))
+    const step = thoughtFinishMode ? Math.max(baseStep, 10) : baseStep
+    msg.thoughtText = target.slice(0, current.length + step)
+    scrollToBottom()
+  }, 48)
+}
+
+function isThoughtTypewriterDone(messageIndex) {
+  const idx = Number(messageIndex)
+  const msg = idx >= 0 ? messages.value[idx] : null
+  if (!msg) return true
+  const target = String(msg.thoughtTargetText || '')
+  const current = String(msg.thoughtText || '')
+  if (!target) return true
+  return current.length >= target.length
+}
+
+async function waitForThoughtTypewriter(messageIndex, { timeoutMs = 8000 } = {}) {
+  const idx = Number(messageIndex)
+  const msg = idx >= 0 ? messages.value[idx] : null
+  if (!msg) return
+
+  // If we haven't received any target yet, don't block the UI.
+  const target = String(msg.thoughtTargetText || '')
+  if (!target) return
+
+  thoughtFinishMode = true
+  const startedAt = Date.now()
+  // Make sure typewriter is running so it can catch up.
+  ensureThoughtTypewriter(idx)
+
+  while (Date.now() - startedAt < timeoutMs) {
+    if (isThoughtTypewriterDone(idx)) return
+    // Small wait; keep it simple and avoid creating additional timers.
+    // eslint-disable-next-line no-await-in-loop
+    await wait(60)
   }
+}
 
 function flushThoughtTypewriter(messageIndex) {
   const idx = Number(messageIndex)
@@ -2631,9 +2794,9 @@ function flushThoughtTypewriter(messageIndex) {
   msg.thoughtText = target
 }
 
-  async function pullProgressStreamOnce(sessionId) {
-    if (!sessionId) return
-    const messageIndex = activeThinkingMessageIndex.value
+async function pullProgressStreamOnce(sessionId) {
+  if (!sessionId) return
+  const messageIndex = activeThinkingMessageIndex.value
 
   const state = progressStreamState.value
   const nextOffset =
@@ -2645,7 +2808,11 @@ function flushThoughtTypewriter(messageIndex) {
     limit: 50,
   })
   const data = unwrapData(payload)
-  const events = Array.isArray(data.events) ? data.events : Array.isArray(data.data) ? data.data : []
+  const events = Array.isArray(data.events)
+    ? data.events
+    : Array.isArray(data.data)
+    ? data.data
+    : []
   const normalizedEvents = events.filter(Boolean)
   const incomingNextOffset =
     data.next_since ??
@@ -2662,7 +2829,11 @@ function flushThoughtTypewriter(messageIndex) {
   }
 
   appendUniqueProgressEvents(normalizedEvents)
-  if (incomingNextOffset !== undefined && incomingNextOffset !== null && incomingNextOffset !== '') {
+  if (
+    incomingNextOffset !== undefined &&
+    incomingNextOffset !== null &&
+    incomingNextOffset !== ''
+  ) {
     progressStreamState.value.nextOffset =
       Number(incomingNextOffset) || progressStreamState.value.nextOffset
   }
@@ -2671,16 +2842,16 @@ function flushThoughtTypewriter(messageIndex) {
   const allTexts = progressStreamState.value.events
     .map((event) => resolveProgressEventText(event))
     .filter(Boolean)
-    const nextText = allTexts.join('\n')
-    if (messageIndex >= 0 && messages.value[messageIndex]) {
-      const msg = messages.value[messageIndex]
-      msg.thoughtTargetText = nextText
-      if (!msg.thoughtText) msg.thoughtText = ''
-      ensureThoughtTypewriter(messageIndex)
-    } else {
-      displayedThought.value = nextText
-    }
+  const nextText = allTexts.join('\n')
+  if (messageIndex >= 0 && messages.value[messageIndex]) {
+    const msg = messages.value[messageIndex]
+    msg.thoughtTargetText = nextText
+    if (!msg.thoughtText) msg.thoughtText = ''
+    ensureThoughtTypewriter(messageIndex)
+  } else {
+    displayedThought.value = nextText
   }
+}
 
 function startProgressStreamPolling(sessionId) {
   stopProgressStreamPolling()
@@ -2708,26 +2879,26 @@ function startProgressStreamPolling(sessionId) {
     })
   }, 1200)
 }
-  function appendThinkingMessage() {
-    const index = messages.value.length
-    activeThinkingMessageIndex.value = index
-    const startedAt = Date.now()
-    messages.value.push({
-      role: 'ai',
-      type: 'text',
-      isThinking: true,
-      thinkingStartedAt: startedAt,
-      thoughtText: '',
-      thoughtTargetText: '',
-      isThoughtExpanded: false,
-      content: '',
-      progressTitle: '正在整理生成任务',
-      progressSubtitle: '我会持续轮询后端状态，并把每一步的结果自动展示在聊天里。',
-      progressBadge: '启动中',
-      progressSteps: buildProgressSteps(0),
-      elapsedLabel: formatElapsed(0),
-      progressTip: progressTips[0],
-    })
+function appendThinkingMessage() {
+  const index = messages.value.length
+  activeThinkingMessageIndex.value = index
+  const startedAt = Date.now()
+  messages.value.push({
+    role: 'ai',
+    type: 'text',
+    isThinking: true,
+    thinkingStartedAt: startedAt,
+    thoughtText: '',
+    thoughtTargetText: '',
+    isThoughtExpanded: false,
+    content: '',
+    progressTitle: '正在整理生成任务',
+    progressSubtitle: '我会持续轮询后端状态，并把每一步的结果自动展示在聊天里。',
+    progressBadge: '启动中',
+    progressSteps: buildProgressSteps(0),
+    elapsedLabel: formatElapsed(0),
+    progressTip: progressTips[0],
+  })
   displayedThought.value = ''
   startThinkingElapsedTimer(index)
   // Switch to real backend progress-stream for user-visible thinking process.
@@ -2932,7 +3103,8 @@ async function presentSessionState(snapshot, thinkingIndex) {
       (await fetchAfterClassHomeworkArtifact(snapshot.sessionId)) || artifacts.homeworkArtifact
     const finalDownloadUrls = {
       ...artifacts.downloadUrls,
-      after_class_homework_docx: homeworkArtifact?.fileUrl || artifacts.downloadUrls.after_class_homework_docx,
+      after_class_homework_docx:
+        homeworkArtifact?.fileUrl || artifacts.downloadUrls.after_class_homework_docx,
     }
     await finishThinkingMessage(thinkingIndex, '最终结果已导出完成，可以预览或下载。')
     if (artifacts.pptxUrl && artifacts.previewPayload) {
@@ -3236,16 +3408,19 @@ async function reviseDraft(instructions) {
       thinkingIndex,
       '新的优化版本已经生成，旧版本仍然保留。你可以分别预览每一版，继续用自然语言修改，或直接导出最终结果。'
     )
-    upsertDraftActionMessage({
-      role: 'ai',
-      type: 'draft-actions',
-      sessionId,
-      taskId: draft.taskId,
-      previewPayload: draft.previewPayload,
-      downloadUrl: draft.downloadUrl,
-      versions,
-      isSubmitted: false,
-    }, { moveToLatest: true })
+    upsertDraftActionMessage(
+      {
+        role: 'ai',
+        type: 'draft-actions',
+        sessionId,
+        taskId: draft.taskId,
+        previewPayload: draft.previewPayload,
+        downloadUrl: draft.downloadUrl,
+        versions,
+        isSubmitted: false,
+      },
+      { moveToLatest: true }
+    )
     focusLatestMessage()
   } catch (error) {
     const message = getUserFacingErrorMessage(error, '修改失败。')
@@ -3308,7 +3483,11 @@ async function generateAfterClassHomework(actionMessage) {
     const result = await generateAfterClassHomeworkApi(sessionId, { action: 'generate' })
     const data = unwrapData(result)
     const downloadUrls = data.downloadUrls || data.download_urls || data.minio_download_urls || {}
-    let homeworkArtifact = buildAfterClassHomeworkArtifact(downloadUrls, sessionId, data.artifacts || {})
+    let homeworkArtifact = buildAfterClassHomeworkArtifact(
+      downloadUrls,
+      sessionId,
+      data.artifacts || {}
+    )
     let links = extractArtifactLinks(downloadUrls, data.artifacts || {}).filter((item) =>
       String(item.label || '').includes('课后作业')
     )
@@ -3348,8 +3527,8 @@ async function generateAfterClassHomework(actionMessage) {
           sessionId,
           fetchedData.artifacts || {}
         )
-        const fetchedLinks = extractArtifactLinks(fetchedUrls, fetchedData.artifacts || {}).filter((item) =>
-          String(item.label || '').includes('课后作业')
+        const fetchedLinks = extractArtifactLinks(fetchedUrls, fetchedData.artifacts || {}).filter(
+          (item) => String(item.label || '').includes('课后作业')
         )
         if (homeworkArtifact?.previewPayload) {
           messages.value.push({
@@ -3468,7 +3647,9 @@ function selectDigitalHumanChoice(actionMessage, choice) {
 }
 
 async function generateDigitalHuman(actionMessage) {
-  const prompt = String(actionMessage?.prompt || inputText.value || '').trim() || '请基于当前 PPT 生成数字人讲解视频。'
+  const prompt =
+    String(actionMessage?.prompt || inputText.value || '').trim() ||
+    '请基于当前 PPT 生成数字人讲解视频。'
   await triggerDigitalHumanGeneration(prompt, {
     sessionId: actionMessage?.sessionId,
     actionMessage,
@@ -3666,7 +3847,12 @@ async function handleSend(options = {}) {
   if (activeDigitalHumanActionMessage.value) {
     const actionMessage = activeDigitalHumanActionMessage.value
     const digitalHumanPrompt = prompt || '请基于当前 PPT 生成数字人讲解视频。'
-    messages.value.push({ role: 'user', type: 'text', content: digitalHumanPrompt, attachments: [] })
+    messages.value.push({
+      role: 'user',
+      type: 'text',
+      content: digitalHumanPrompt,
+      attachments: [],
+    })
     inputText.value = ''
     focusLatestMessage()
     await triggerDigitalHumanGeneration(digitalHumanPrompt, {
@@ -3909,7 +4095,10 @@ function handleDeleteCourseDesign(courseId) {
     currentCourseDesignSessionId.value = ''
     currentCourseDesignSnapshot.value = null
   }
-  if (quotedLessonData.value?.courseDesignId && String(quotedLessonData.value.courseDesignId) === String(courseId)) {
+  if (
+    quotedLessonData.value?.courseDesignId &&
+    String(quotedLessonData.value.courseDesignId) === String(courseId)
+  ) {
     cancelQuote()
   }
 }
@@ -4695,38 +4884,70 @@ onBeforeUnmount(() => {
 }
 
 .clarification-question h4 {
-  margin: 0;
+  font-weight: 900;
+  color: #000000;
 }
 
 .clarification-picked {
-  flex-shrink: 0;
-  padding: 4px 8px;
-  border-radius: 999px;
-  background: #f0f6ff;
-  color: #4096ff;
+  background: transparent;
+  color: #000000;
+  border: 1px solid #000000;
+  border-radius: 4px; /* 告别圆润胶囊，改成微方角 */
+  padding: 3px 8px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .clarification-footer {
   margin-top: 16px;
   padding-top: 12px;
-  border-top: 1px solid #edf1f6;
+  border-top: 1px dashed #e0e0e0; /* 和大纲卡片呼应的虚线 */
 }
-
+.clarification-option {
+  border-radius: 6px; /* 微圆角，显得干练 */
+  border: 1px solid #d9d9d9;
+  background: #ffffff;
+  color: #333333;
+  transition: all 0.2s ease;
+  box-shadow: none;
+}
+.clarification-option.is-selected {
+  border: 2px solid #000000; /* 加粗黑框 */
+  background: #ffffff;
+  color: #000000;
+  font-weight: 900;
+  box-shadow: none;
+}
+.clarification-option__check {
+  border-radius: 3px; /* 从圆圈改成小方块 */
+  border: 1px solid #cccccc;
+  background: #ffffff;
+}
+.clarification-option.is-selected .clarification-option__check {
+  border-color: #000000;
+  background: #000000; /* 纯黑填充 */
+}
+.clarification-option.is-selected .clarification-option__check::after {
+  border-color: #ffffff; /* 白色对勾 */
+}
+.clarification-option:hover:not(:disabled) {
+  border-color: #000000;
+  transform: translateY(-2px);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+  background: #fafafa;
+}
 .clarification-progress {
   display: flex;
   justify-content: flex-start;
-  color: #66758c;
+  color: #000;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .clarification-progress-bar {
   height: 6px;
   margin-top: 8px;
   overflow: hidden;
-  border-radius: 999px;
   background: #edf2f8;
 }
 
@@ -4734,8 +4955,6 @@ onBeforeUnmount(() => {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #8eb8ff, #1677ff);
-  transition: width 0.24s ease;
 }
 
 .card-tip {
@@ -4882,9 +5101,12 @@ onBeforeUnmount(() => {
 }
 
 .submit-form-btn {
-  background: #333;
-  color: #fff;
-  padding: 10px 18px;
+  border-radius: 6px;
+  background: #000000;
+  color: #ffffff;
+  font-weight: 700;
+  border: 1px solid #000000;
+  box-shadow: none;
 }
 
 .secondary-btn,
@@ -4988,7 +5210,7 @@ onBeforeUnmount(() => {
 }
 
 .outline-review-eyebrow {
-  color: #1f4fd6;
+  color: #000;
   font-size: 12px;
   font-weight: 800;
 }
@@ -4996,8 +5218,8 @@ onBeforeUnmount(() => {
 .outline-review-count {
   flex-shrink: 0;
   border-radius: 999px;
-  background: #eef4ff;
-  color: #1f4fd6;
+
+  color: #000;
   padding: 8px 12px;
   font-size: 12px;
   font-weight: 800;
@@ -5013,8 +5235,7 @@ onBeforeUnmount(() => {
 
 .outline-summary-item {
   border: 1px solid #e8eef8;
-  border-radius: 12px;
-  background: linear-gradient(180deg, #f8fbff, #f2f6fc);
+  border-radius: 5px;
   padding: 12px;
 }
 
@@ -5039,109 +5260,165 @@ onBeforeUnmount(() => {
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 14px;
 }
-
+/* 1. 卡片基础设置保持不变 */
 .outline-item {
+  --d: 600ms;
+  --e: cubic-bezier(0.19, 1, 0.22, 1);
+  background: #ffffff;
+  border: 1px solid #000000;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.05);
   position: relative;
   overflow: hidden;
-  background: #f8fafc;
-  border: 1px solid #e5edf8;
-  border-radius: 14px;
-  padding: 14px;
-  min-height: 168px;
-  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
-}
-
-.outline-item::before {
-  content: '';
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 4px;
-  background: linear-gradient(180deg, #1677ff, #79c4ff);
-}
-
-.outline-item:hover {
-  transform: translateY(-1px);
-  border-color: rgba(31, 79, 214, 0.24);
-  box-shadow: 0 12px 26px rgba(31, 79, 214, 0.08);
-}
-
-.outline-item-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.outline-page-badge,
-.outline-point-count {
-  display: inline-flex;
-  align-items: center;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.outline-page-badge {
-  background: #1f4fd6;
-  color: #fff;
-  padding: 7px 9px;
-}
-
-.outline-point-count {
-  background: #eef3f8;
-  color: #5d6b82;
-  padding: 7px 9px;
-}
-
-.outline-title {
-  min-height: 42px;
-  font-size: 14px;
-  font-weight: 800;
-  color: #1f2d3d;
-  line-height: 1.45;
-}
-
-.outline-bullets {
-  margin-top: 10px;
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  height: 210px; /* 固定高度 */
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
 }
 
+/* 卡片悬浮状态 */
+.outline-item:hover {
+  border-color: #000000;
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 1);
+  transform: translate(-2px, -2px);
+}
+
+/* 2. 标题：平时显示，悬浮时飞出隐藏 */
+.outline-title {
+  color: #000000;
+  font-size: 16px;
+  font-weight: 900;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed #e0e0e0; /* 默认位于此处的分割线 */
+  margin-bottom: 10px;
+
+  transform: translateY(0);
+  opacity: 1;
+  transition: transform var(--d) var(--e), opacity var(--d) var(--e);
+}
+
+.outline-item:hover .outline-title {
+  transform: translateY(-20px); /* 往上飞出 */
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 3. 存放要点的父容器 */
+.outline-bullets-container {
+  position: relative;
+  flex: 1; /* 占据下方剩余空间 */
+}
+
+/* 4. 预览版的 3 个要点：平时显示，悬浮时向下隐藏 */
+.outline-bullets-preview {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  opacity: 1;
+  transform: translateY(0);
+  transition: transform var(--d) var(--e), opacity var(--d) var(--e);
+}
+.outline-hover-tip {
+  font-size: 12px;
+  color: #888888; /* 低调的灰色 */
+  margin-top: 5px;
+  padding-left: 14px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: color 0.2s ease;
+}
+
+/* 如果鼠标不小心移到了字上，稍微变深一点 */
+.outline-hover-tip:hover {
+  color: #333333;
+}
+.outline-item:hover .outline-bullets-preview {
+  opacity: 0;
+  transform: translateY(20px); /* 向下潜水隐藏 */
+  pointer-events: none;
+}
+
+/* 5. 全量版的要点：平时隐藏，悬浮时向上浮现并铺满 */
+.outline-bullets-full {
+  position: absolute;
+  top: -38px; /* 【核心】往上顶，正好卡在头部新亮起的那条分割线下方 */
+  bottom: 0;
+  left: 0;
+  right: -8px;
+
+  overflow-y: auto;
+  padding-right: 8px;
+
+  opacity: 0;
+  transform: translateY(20px);
+  transition: transform var(--d) var(--e), opacity var(--d) var(--e);
+  pointer-events: none;
+}
+
+.outline-item:hover .outline-bullets-full {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto; /* 悬浮后允许内部滚动 */
+  transition-delay: 40ms;
+}
+
+/* 全量列表滚动条美化 */
+.outline-bullets-full::-webkit-scrollbar {
+  width: 4px;
+}
+.outline-bullets-full::-webkit-scrollbar-thumb {
+  background-color: #d9d9d9;
+  border-radius: 4px;
+}
+
+/* 6. 单个要点文字排版 */
 .outline-bullet {
   position: relative;
+  color: #333333;
+  font-size: 13px;
+  line-height: 1.6;
   padding-left: 14px;
-  font-size: 12px;
-  color: #5e6d82;
-  line-height: 1.55;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
+  margin-bottom: 8px;
+  display: block; /* 去除行数限制 */
+}
+.outline-page-badge {
+  color: brown;
+}
+.outline-item-head {
+  justify-content: flex-start;
+  gap: 8px;
+  margin-bottom: 12px;
+  position: relative; /* 为下面那条线做参照 */
 }
 
-.outline-bullet::before {
+/* 用伪元素在 P1 标下方埋伏一条分割线（默认全透明） */
+.outline-item-head::after {
   content: '';
   position: absolute;
-  top: 0.7em;
   left: 0;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #1f4fd6;
+  right: 0;
+  bottom: -10px; /* 放在头部下方 10px 处 */
+  border-bottom: 1px dashed #e0e0e0;
+  opacity: 0;
+  transition: opacity var(--d) var(--e);
 }
-
-.outline-more-bullets {
-  align-self: flex-start;
-  margin-top: 2px;
-  border-radius: 999px;
-  background: #edf4ff;
-  color: #1f4fd6;
-  padding: 5px 9px;
-  font-size: 12px;
-  font-weight: 800;
+.outline-bullet::before {
+  content: '-';
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: #000000;
+  font-weight: 900;
+  background: none;
+}
+.outline-item:hover .outline-item-head::after {
+  opacity: 1 !important;
+}
+.outline-point-count {
+  margin-left: 15px;
+  margin-bottom: 10px;
 }
 
 .outline-empty {
@@ -5157,7 +5434,13 @@ onBeforeUnmount(() => {
   justify-content: center;
   margin-top: 14px;
 }
-
+.outline-bullets::-webkit-scrollbar {
+  width: 4px;
+}
+.outline-bullets::-webkit-scrollbar-thumb {
+  background-color: #d9d9d9;
+  border-radius: 4px;
+}
 .outline-expand-btn {
   border: 1px solid #dce6f5;
   border-radius: 999px;
@@ -5382,7 +5665,8 @@ onBeforeUnmount(() => {
 }
 
 @keyframes mic-wave-bar {
-  0%, 100% {
+  0%,
+  100% {
     transform: scaleY(0.5);
     opacity: 0.5;
   }
@@ -5559,9 +5843,7 @@ onBeforeUnmount(() => {
   background: #ffffff;
   padding: 16px;
   cursor: pointer;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .course-design-lesson:hover,
@@ -5708,8 +5990,7 @@ onBeforeUnmount(() => {
 .close-quote-btn:hover {
   color: #f56c6c;
 }
- 
- 
+
 @keyframes blinkCursor {
   0%,
   100% {
@@ -5741,10 +6022,7 @@ onBeforeUnmount(() => {
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
   cursor: pointer;
   user-select: none;
-  transition:
-    background-color 0.22s ease,
-    border-color 0.22s ease,
-    box-shadow 0.22s ease,
+  transition: background-color 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease,
     transform 0.22s ease;
   align-self: flex-start;
   margin-left: -8px; /* 让文字与外层对话边界对齐 */
@@ -5771,8 +6049,12 @@ onBeforeUnmount(() => {
 }
 
 @keyframes spinSlow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .header-title {
@@ -5862,8 +6144,7 @@ onBeforeUnmount(() => {
   opacity: 0;
   filter: blur(10px);
   transform: translateY(30px) scale(0.95);
-  animation:
-    brandEnter 1s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+  animation: brandEnter 1s cubic-bezier(0.22, 1, 0.36, 1) forwards,
     starrySky 12s ease-in-out 1s infinite;
 }
 
@@ -5876,7 +6157,8 @@ onBeforeUnmount(() => {
 }
 
 @keyframes starrySky {
-  0%, 100% {
+  0%,
+  100% {
     background-position: 0% 50%;
   }
   50% {
@@ -5885,7 +6167,8 @@ onBeforeUnmount(() => {
 }
 
 @keyframes brandFloat {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -6018,8 +6301,13 @@ onBeforeUnmount(() => {
 }
 
 @keyframes blinkCursor {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 
 @keyframes thinkingContainerIn {
