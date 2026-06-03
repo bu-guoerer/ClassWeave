@@ -7,15 +7,6 @@
       <span class="nav-item" :class="{ active: activeTab === 'email' }" @click="switchTab('email')"
         >邮箱</span
       >
-      <span class="nav-item" :class="{ active: activeTab === 'qq' }" @click="switchTab('qq')"
-        >QQ</span
-      >
-      <span
-        class="nav-item"
-        :class="{ active: activeTab === 'wechat' }"
-        @click="switchTab('wechat')"
-        >微信</span
-      >
     </nav>
 
     <div class="login-form-container" v-show="activeTab === 'phone'">
@@ -24,12 +15,6 @@
     <div class="login-form-container" v-show="activeTab === 'email'">
       <EmailLogin :key="'email-' + activeTab" />
     </div>
-    <div class="login-form-container" v-show="activeTab === 'qq'">
-      <QrLogin platform="qq" @login-success="handleLoginSuccess" />
-    </div>
-    <div class="login-form-container" v-show="activeTab === 'wechat'">
-      <QrLogin platform="wechat" @login-success="handleLoginSuccess" />
-    </div>
   </div>
 </template>
 
@@ -37,7 +22,6 @@
 import { ref } from 'vue'
 import PhoneLogin from '@/components/login/PhoneLogin.vue'
 import EmailLogin from '@/components/login/EmailLogin.vue'
-import QrLogin from '@/components/login/QrLogin.vue'
 
 const activeTab = ref('phone')
 
@@ -45,11 +29,6 @@ function switchTab(tab) {
   activeTab.value = tab
 }
 
-function handleLoginSuccess(platform) {
-  alert(`${platform === 'qq' ? 'QQ' : '微信'}登录成功（模拟跳转）`)
-  // 实际开发可在此跳转到首页
-  // router.push('/')
-}
 </script>
 
 <style scoped>

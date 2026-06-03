@@ -42,7 +42,7 @@
             <h4 class="file-name" :title="file.name">{{ file.name }}</h4>
             <div class="file-meta">
               <span>{{ file.size }}</span>
-              <span>{{ file.date }}</span>
+              <!-- <span>{{ file.date }}</span> -->
             </div>
           </div>
           <!-- 悬浮操作菜单 -->

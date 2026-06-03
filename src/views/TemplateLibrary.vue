@@ -16,7 +16,11 @@
         </div>
         <div class="tab-divider"></div>
         <div class="tab-item my-tpl">
-          <span>🔔 我的模板</span>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: text-bottom; margin-right: 4px;">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          我的模板
         </div>
       </div>
     </header>
