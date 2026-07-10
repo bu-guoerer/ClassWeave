@@ -386,7 +386,7 @@
                 <button
                   :class="['choice-btn', msg.choice === 'yes' ? 'is-active' : '']"
                   :disabled="msg.isSubmitted || isSubmitting"
-                  @click="selectDigitalHumanChoice(msg, 'yes')"
+                  @click="openDigitalHumanModal(msg)"
                 >
                   需要数字人
                 </button>
@@ -581,6 +581,47 @@
                   <span></span>
                 </div>
               </button>
+              <!-- ======== 新增：常驻的数字人触发按钮 ======== -->
+              <button class="tool-btn" @click="handleToolbarDigitalHuman">
+                <svg class="tool-btn__svg" viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    fill="none"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <circle
+                    cx="9"
+                    cy="7"
+                    r="4"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    fill="none"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M22 21v-2a4 4 0 0 0-3-3.87"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    fill="none"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M16 3.13a4 4 0 0 1 0 7.75"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    fill="none"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <span class="tool-btn__label">定制数字人</span>
+              </button>
+              <!-- ======== 新增结束 ======== -->
             </div>
             <button class="send-btn" :disabled="sendDisabled" @click="handleSend">发送</button>
           </div>
@@ -739,6 +780,125 @@
       </div>
     </template>
   </div>
+  <Transition name="modal-fade">
+    <div v-if="showDigitalModal" class="digital-modal-overlay" @click.self="closeDigitalModal">
+      <div class="digital-modal-content">
+        <div class="digital-modal-header">
+          <h3>定制专属数字人</h3>
+          <button class="close-modal-btn" @click="closeDigitalModal">×</button>
+        </div>
+        <div class="digital-modal-body">
+          <p class="digital-modal-tip">
+            请上传您的正面照片和一段声音素材，我们将为您生成专属数字分身。
+          </p>
+
+          <div class="upload-cards">
+            <!-- 照片上传 -->
+            <div class="upload-card" @click="triggerAvatarUpload">
+              <input
+                ref="avatarInputRef"
+                type="file"
+                accept="image/*"
+                style="display: none"
+                @change="handleAvatarUpload"
+              />
+              <div v-if="!uploadedAvatar" class="upload-placeholder">
+                <!-- 线性相机图标 -->
+                <svg
+                  viewBox="0 0 24 24"
+                  width="28"
+                  height="28"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
+                  ></path>
+                  <circle cx="12" cy="13" r="4"></circle>
+                </svg>
+                <span>点击上传正面照片</span>
+              </div>
+              <div v-else class="upload-success-state">
+                <!-- 新增：真实的图片缩略图 -->
+                <img :src="uploadedAvatarUrl" alt="照片预览" class="avatar-thumbnail" />
+                <span class="file-name-text">{{ uploadedAvatar.name }}</span>
+                <span class="re-record-text">点击可重新上传照片</span>
+              </div>
+            </div>
+
+            <!-- 语音上传 -->
+            <!-- 语音录制 -->
+            <div
+              class="upload-card"
+              :class="{ 'is-recording': isRecordingVoice }"
+              @click="toggleVoiceRecord"
+            >
+              <!-- 初始状态 -->
+              <div v-if="!uploadedVoice && !isRecordingVoice" class="upload-placeholder">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="28"
+                  height="28"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                  <line x1="12" y1="19" x2="12" y2="22"></line>
+                </svg>
+                <span>点击开始录制声音 (≥10秒)</span>
+              </div>
+
+              <!-- 正在录制状态 -->
+              <div v-else-if="isRecordingVoice" class="upload-placeholder recording-state">
+                <div class="recording-pulse"></div>
+                <span class="recording-time">{{ formatDuration(recordingDuration) }}</span>
+                <span>正在录音，点击结束</span>
+              </div>
+
+              <!-- 录制完成状态 -->
+              <div v-else class="upload-success-state">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="28"
+                  height="28"
+                  fill="none"
+                  stroke="#10b981"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>声音录制完成 ({{ formatDuration(recordingDuration) }})</span>
+
+                <!-- 新增：音频播放器（加了 @click.stop 防止点击播放器时触发重新录制） -->
+                <audio :src="recordedAudioUrl" controls class="audio-preview" @click.stop></audio>
+
+                <span class="re-record-text">点击卡片空白处可重新录制</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="digital-modal-footer">
+          <button class="secondary-btn" @click="closeDigitalModal">取消</button>
+          <button
+            class="submit-form-btn"
+            :disabled="!uploadedAvatar || !uploadedVoice"
+            @click="confirmDigitalModal"
+          >
+            确认并使用
+          </button>
+        </div>
+      </div>
+    </div>
+  </Transition>
 </template>
 
 <script setup>
@@ -830,6 +990,13 @@ const isRecordingBusy = ref(false)
 const isFileSelecting = ref(false)
 const voiceInterimTranscript = ref('')
 const voiceStatusText = ref('点击后开始实时识别')
+const showDigitalModal = ref(false)
+const currentDigitalMsg = ref(null)
+const avatarInputRef = ref(null)
+const voiceInputRef = ref(null)
+const uploadedAvatar = ref(null)
+const uploadedVoice = ref(null)
+const uploadedAvatarUrl = ref('') // <--- 新增：用于存放数字人头像缩略图的URL
 
 const uploadType = ref('pdf')
 let speechRecognition = null
@@ -837,6 +1004,93 @@ let voiceInputBaseText = ''
 let voiceFinalTranscript = ''
 let voiceStopRequested = false
 const quotedLessonData = ref(null)
+
+const openDigitalHumanModal = (msg) => {
+  currentDigitalMsg.value = msg
+  uploadedAvatar.value = null
+  uploadedVoice.value = null
+  showDigitalModal.value = true
+}
+
+const handleToolbarDigitalHuman = () => {
+  openDigitalHumanModal(null) // 传 null 代表是底部工具栏主动点击触发的
+}
+
+const closeDigitalModal = () => {
+  // 1. 如果正在录音，需要停止麦克风
+  if (isRecordingVoice.value) {
+    isRecordingVoice.value = false
+    clearInterval(recordingInterval)
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop() // 这会停止录音
+    }
+    if (mediaRecorder && mediaRecorder.stream) {
+      mediaRecorder.stream.getTracks().forEach((track) => track.stop()) // 强制释放麦克风指示灯
+    }
+  }
+
+  // 2. 关闭弹窗状态
+  showDigitalModal.value = false
+  currentDigitalMsg.value = null
+
+  // 3. 彻底清空录音文件与播放链接
+  uploadedVoice.value = null
+  if (recordedAudioUrl.value) {
+    URL.revokeObjectURL(recordedAudioUrl.value)
+    recordedAudioUrl.value = ''
+  }
+
+  // 4. 彻底清空图片文件与缩略图链接
+  uploadedAvatar.value = null
+  if (uploadedAvatarUrl.value) {
+    URL.revokeObjectURL(uploadedAvatarUrl.value)
+    uploadedAvatarUrl.value = ''
+  }
+}
+const triggerAvatarUpload = () => {
+  if (avatarInputRef.value) avatarInputRef.value.click()
+}
+
+const triggerVoiceUpload = () => {
+  if (voiceInputRef.value) voiceInputRef.value.click()
+}
+
+const handleAvatarUpload = (event) => {
+  const file = event.target.files?.[0]
+  if (file) {
+    uploadedAvatar.value = file
+
+    // <--- 新增：生成图片缩略图预览地址
+    if (uploadedAvatarUrl.value) {
+      URL.revokeObjectURL(uploadedAvatarUrl.value) // 释放上一次预览的内存
+    }
+    uploadedAvatarUrl.value = URL.createObjectURL(file)
+
+    ElMessage.success('照片素材上传成功！')
+  }
+  event.target.value = '' // 清空以便重复上传
+}
+
+const handleVoiceUpload = (event) => {
+  const file = event.target.files?.[0]
+  if (file) {
+    uploadedVoice.value = file
+    ElMessage.success('声音素材上传成功！')
+  }
+  event.target.value = ''
+}
+
+const confirmDigitalModal = () => {
+  if (currentDigitalMsg.value) {
+    // 原始卡片流程
+    selectDigitalHumanChoice(currentDigitalMsg.value, 'yes')
+  } else {
+    // 底部工具栏直接触发流程
+    inputText.value = '请使用我刚上传的素材定制数字人，并生成讲解。'
+  }
+  showDigitalModal.value = false
+  ElMessage.success('专属数字人定制成功，请发送指令开始生成。')
+}
 
 // 处理“引用单节课”事件
 const handleQuoteLesson = (data) => {
@@ -2415,6 +2669,72 @@ function shouldContinuePollingDigitalHuman(result) {
       result.status
     )
   )
+}
+
+// ====== 录音功能相关状态与方法 ======
+const isRecordingVoice = ref(false)
+const recordingDuration = ref(0)
+const recordedAudioUrl = ref('')
+let mediaRecorder = null
+let audioChunks = []
+let recordingInterval = null
+
+// 格式化时间 00:00
+const formatDuration = (seconds) => {
+  const mins = Math.floor(seconds / 60)
+    .toString()
+    .padStart(2, '0')
+  const secs = (seconds % 60).toString().padStart(2, '0')
+  return `${mins}:${secs}`
+}
+
+// 切换录音状态
+const toggleVoiceRecord = async () => {
+  if (isRecordingVoice.value) {
+    if (mediaRecorder) mediaRecorder.stop()
+  } else {
+    try {
+      // <--- 新增：重新录制前，清理旧的播放链接以释放内存
+      if (recordedAudioUrl.value) {
+        URL.revokeObjectURL(recordedAudioUrl.value)
+        recordedAudioUrl.value = ''
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      mediaRecorder = new MediaRecorder(stream)
+      audioChunks = []
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) audioChunks.push(event.data)
+      }
+
+      mediaRecorder.onstop = () => {
+        if (!showDigitalModal.value) return
+        // 这里就是真实保存给后端的文件！
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' })
+        const file = new File([audioBlob], 'recorded_voice.webm', { type: 'audio/webm' })
+        uploadedVoice.value = file
+
+        // <--- 新增：将刚才保存的文件转换成浏览器可播放的 URL
+        recordedAudioUrl.value = URL.createObjectURL(audioBlob)
+
+        isRecordingVoice.value = false
+        clearInterval(recordingInterval)
+        ElMessage.success('声音录制完成！')
+        stream.getTracks().forEach((track) => track.stop())
+      }
+
+      // ... 下面的 start 等代码保持不变 ...
+      mediaRecorder.start()
+      isRecordingVoice.value = true
+      recordingDuration.value = 0
+      recordingInterval = setInterval(() => {
+        recordingDuration.value++
+      }, 1000)
+    } catch (err) {
+      ElMessage.error('无法访问麦克风，请检查浏览器权限设置。')
+    }
+  }
 }
 
 async function waitForDigitalHumanResult(sessionId, initialPayload) {
@@ -6370,5 +6690,215 @@ onBeforeUnmount(() => {
   justify-content: center;
   align-items: center;
   padding: 0 24px;
+}
+
+/* ====== 新增：数字人弹窗样式 ====== */
+.digital-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.digital-modal-content {
+  background: #fff;
+  width: 100%;
+  max-width: 480px;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transform: scale(1);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+.modal-fade-enter-from .digital-modal-content,
+.modal-fade-leave-to .digital-modal-content {
+  transform: scale(0.95) translateY(10px);
+}
+
+.digital-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.digital-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #1e293b;
+  font-weight: 800;
+}
+
+.close-modal-btn {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  color: #94a3b8;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+
+.close-modal-btn:hover {
+  color: #ef4444;
+}
+
+.digital-modal-body {
+  padding: 24px;
+}
+
+.digital-modal-tip {
+  margin: 0 0 20px;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.upload-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.upload-card {
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  background: #f8fafc;
+  transition: all 0.2s ease;
+}
+
+.upload-card:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.upload-placeholder .iconfont {
+  font-size: 28px;
+  color: #94a3b8;
+}
+
+.upload-card:hover .upload-placeholder .iconfont {
+  color: #3b82f6;
+}
+
+.upload-success-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #10b981; /* 成功绿 */
+  font-weight: 600;
+}
+
+.upload-success-state .iconfont {
+  font-size: 28px;
+}
+
+.digital-modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  background: #f8fafc;
+}
+
+.upload-card.is-recording {
+  border-color: #ef4444; /* 红色边框 */
+  background: #fef2f2; /* 浅红背景 */
+}
+
+.recording-state {
+  color: #ef4444;
+}
+
+/* 录音中的红点呼吸灯 */
+.recording-pulse {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ef4444;
+  margin-bottom: 4px;
+  animation: pulseRed 1.2s infinite;
+}
+
+@keyframes pulseRed {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+.recording-time {
+  font-size: 24px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 4px;
+  color: #1e293b;
+}
+
+.re-record-text {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 4px;
+  text-decoration: underline;
+}
+
+.audio-preview {
+  margin-top: 10px;
+  width: 100%;
+  max-width: 240px;
+  height: 36px;
+  outline: none;
+}
+.avatar-thumbnail {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  margin-bottom: 8px;
+}
+
+.file-name-text {
+  font-size: 14px;
+  color: #1e293b;
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>
